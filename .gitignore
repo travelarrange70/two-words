@@ -1,0 +1,83 @@
+# Node / server dependencies
+node_modules/
+server/node_modules/
+server/.env
+server/.certs/
+server/.agent/
+server/.claude/
+server/server.pid
+server.pid
+
+# Backup files
+*.bak
+*.bak_*
+index.html.bak
+index.html.bak_mojibake
+index.html.bak_pre_enhancements
+
+# Unity project files (not part of the web game)
+Assets/
+Library/
+Logs/
+Packages/
+ProjectSettings/
+Temp/
+UserSettings/
+*.unitypackage
+*.slnx
+*.sln
+*.csproj
+UnityGPSMapOverlay/
+cesium-unity-samples*/
+
+# IDE / tool configs
+.vscode/
+.idea/
+.antigravity-ide/
+.agent/
+.claude/
+.claude.json
+.agents/
+.mirabridge/
+
+# Environment and secrets
+.env
+*.env
+config.json
+accounts.json
+server-presets.json
+claude-presets.json
+usage-history.json
+mcp_config.json
+
+# Scripts and PowerShell automation (developer-only)
+Fix-*.ps1
+Install-*.ps1
+Invoke-*.ps1
+Repair-*.ps1
+Run-*.ps1
+Run.ps1
+Run-*.txt
+Setup-*.ps1
+Start-*.ps1
+setup-*.ps1
+setup_*.ps1
+fix_unity.ps1
+calibrate_gps.ps1
+calibrate_gps.cjs
+_check_syntax.ps1
+test_jsdom.cjs
+test_overpass.cjs
+unity_mcp_bridge.js
+CLAUDE.md
+GEMINI.md
+MyScript.cs
+
+# Misc
+*.pid
+*.db
+index.ts
+server.py
+clonereadme.md
+changelog.md
+# Run this script in PowerShell as.txt
