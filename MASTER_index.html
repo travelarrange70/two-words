@@ -1188,20 +1188,30 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
   </div>
 
   <!-- TW Intro Sequence (hidden phases, used by intro animation logic) -->
-  <div id="tw-intro" style="position:fixed; inset:0; z-index:99995; background:#030308; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px;">
+  <div id="tw-intro" style="position:fixed; inset:0; z-index:99995; background:#030308; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; touch-action:manipulation;">
     <div id="tw-cursor-phase" style="display:none; font-size:3rem; font-weight:900; color:#fff; text-align:center; letter-spacing:0.04em;"></div>
-    <div id="tw-flash-prompt" style="display:none; position:absolute; inset:0; background:rgba(0,229,255,0.08); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:32px;">
-      <div style="font-size:1.5rem; font-weight:900; color:#fff; text-align:center; letter-spacing:0.05em;">What are your <span style="background:linear-gradient(135deg,#00d4ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Two Words</span>?</div>
-      <div style="font-size:0.9rem; color:#a0aec0; text-align:center; max-width:300px;">Your ambition. Your identity. Find people who share yours.</div>
+    <div id="tw-flash-prompt" onclick="advanceToInput()" style="display:flex; position:absolute; inset:0; background:rgba(0,229,255,0.06); align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:32px; cursor:pointer; z-index:10;">
+      <div style="font-size:1.6rem; font-weight:900; color:#fff; text-align:center; letter-spacing:0.05em;">What are your <span style="background:linear-gradient(135deg,#00d4ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Two Words</span>?</div>
+      <div style="font-size:0.95rem; color:#a0aec0; text-align:center; max-width:320px;">Your ambition. Your identity. Find people and places that share yours.</div>
+      <div style="margin-top:16px; font-size:0.8rem; font-weight:800; color:#00e5ff; letter-spacing:2px; text-transform:uppercase; border:1px solid rgba(0,229,255,0.3); border-radius:20px; padding:8px 18px; background:rgba(0,229,255,0.08);">Tap to Begin ➔</div>
     </div>
-    <div id="tw-input-phase" style="display:none; flex-direction:column; align-items:center; gap:20px; width:100%; max-width:360px;">
-      <div style="font-size:1.1rem; font-weight:800; color:#fff; text-align:center;" id="tw-go-label">Enter your two words</div>
-      <div style="display:flex; gap:12px; width:100%;">
-        <input type="text" id="tw-w1" placeholder="PLAY" maxlength="24" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="flex:1; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.2); border-radius:14px; padding:14px; font-size:1.1rem; font-weight:800; color:#fff; text-transform:uppercase; text-align:center; outline:none;" />
-        <input type="text" id="tw-w2" placeholder="GOLF" maxlength="24" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="flex:1; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.2); border-radius:14px; padding:14px; font-size:1.1rem; font-weight:800; color:#fff; text-transform:uppercase; text-align:center; outline:none;" />
-      </div>
-      <div id="tw-loading-dots" style="display:none; color:#00e5ff; font-size:1.5rem; letter-spacing:6px;">···</div>
-      <button id="tw-go-btn" onclick="submitTwoWords()" style="width:100%; background:linear-gradient(135deg,#00d4ff,#a855f7); border:none; padding:16px; border-radius:16px; color:#fff; font-weight:900; font-size:1.05rem; cursor:pointer; box-shadow:0 6px 24px rgba(0,212,255,0.4);">Find My Matches →</button>
+    <div id="tw-input-phase" style="display:none; position:relative; z-index:50; pointer-events:auto; flex-direction:column; align-items:center; gap:18px; width:100%; max-width:380px;">
+      <div style="font-size:1.2rem; font-weight:800; color:#fff; text-align:center;" id="tw-go-label">Enter your two words</div>
+      <form id="tw-intro-form" onsubmit="event.preventDefault(); submitTwoWords();" style="width:100%; display:flex; flex-direction:column; gap:14px; align-items:center;">
+        <div style="display:flex; gap:12px; width:100%;">
+          <input type="text" id="tw-w1" placeholder="PLAY" maxlength="24" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="next" style="flex:1; width:50%; background:rgba(255,255,255,0.08); border:2px solid rgba(0,229,255,0.35); border-radius:14px; padding:14px; font-size:1.15rem; font-weight:800; color:#fff; text-transform:uppercase; text-align:center; outline:none; box-sizing:border-box;" />
+          <input type="text" id="tw-w2" placeholder="GOLF" maxlength="24" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" style="flex:1; width:50%; background:rgba(255,255,255,0.08); border:2px solid rgba(168,85,247,0.35); border-radius:14px; padding:14px; font-size:1.15rem; font-weight:800; color:#fff; text-transform:uppercase; text-align:center; outline:none; box-sizing:border-box;" />
+        </div>
+        <!-- Quick Ambition Suggestion Chips -->
+        <div id="tw-suggestion-chips" style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; width:100%; margin-top:2px;">
+          <span class="tw-chip" onclick="quickFillAmbition('PLAY', 'GOLF')" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:5px 11px; font-size:0.75rem; font-weight:700; color:#e0e7ff; cursor:pointer;">⛳ PLAY GOLF</span>
+          <span class="tw-chip" onclick="quickFillAmbition('CYBER', 'RUN')" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:5px 11px; font-size:0.75rem; font-weight:700; color:#e0e7ff; cursor:pointer;">⚡ CYBER RUN</span>
+          <span class="tw-chip" onclick="quickFillAmbition('BEACH', 'VIBES')" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:5px 11px; font-size:0.75rem; font-weight:700; color:#e0e7ff; cursor:pointer;">🌴 BEACH VIBES</span>
+          <span class="tw-chip" onclick="quickFillAmbition('NIGHT', 'WALK')" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:5px 11px; font-size:0.75rem; font-weight:700; color:#e0e7ff; cursor:pointer;">🚶 NIGHT WALK</span>
+        </div>
+        <div id="tw-loading-dots" style="display:none; color:#00e5ff; font-size:1.5rem; letter-spacing:6px;">···</div>
+        <button id="tw-go-btn" type="submit" style="width:100%; background:linear-gradient(135deg,#00d4ff,#a855f7); border:none; padding:16px; border-radius:16px; color:#fff; font-weight:900; font-size:1.1rem; cursor:pointer; box-shadow:0 6px 24px rgba(0,212,255,0.4); margin-top:4px;">Find My Matches →</button>
+      </form>
     </div>
   </div>
 
@@ -5550,7 +5560,6 @@ function targetMatchFromList(idx) {
     const radius = 3000; // 3km search radius
 
     if (tags.length === 0) {
-      // Unknown words: fall back to a nearby park
       tags.push({ k: 'leisure', v: 'park' });
     }
 
@@ -5562,16 +5571,19 @@ function targetMatchFromList(idx) {
     const query = `[out:json][timeout:12];\n(\n${tagQueries}\n);\nout center 20;`;
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s strict timeout
       const res = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',
         body: 'data=' + encodeURIComponent(query),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       const elements = data.elements || [];
 
       if (elements.length === 0) {
-        // No POI found — return a random nearby point
         const angle = Math.random() * Math.PI * 2;
         const d = 0.002 + Math.random() * 0.003;
         return {
@@ -5589,20 +5601,20 @@ function targetMatchFromList(idx) {
         const dist = haversineDistance(lat, lon, eLat, eLon);
         const name = el.tags?.name || el.tags?.['name:en'] || `${w1} ${w2} Place`;
         return { lat: eLat, lon: eLon, name, dist, tags: el.tags };
-      }).filter(e => e.dist > 20); // Ignore spots right under the player
+      }).filter(e => e.dist > 20);
 
       scored.sort((a, b) => a.dist - b.dist);
-      const best = scored[0];
+      const best = scored[0] || elements[0];
 
       return {
-        lat: best.lat,
-        lon: best.lon,
-        name: best.name,
+        lat: best.lat || lat,
+        lon: best.lon || lon,
+        name: best.name || `${w1} ${w2}`,
         type: 'osm',
-        dist: best.dist,
+        dist: best.dist || 100,
       };
     } catch (err) {
-      console.warn('Overpass lookup failed, using fallback:', err);
+      console.warn('Overpass lookup finished/fallback:', err.message || err);
       const angle = Math.random() * Math.PI * 2;
       const d = 0.002 + Math.random() * 0.003;
       return {
@@ -5614,15 +5626,58 @@ function targetMatchFromList(idx) {
     }
   }
 
+  window.quickFillAmbition = function(word1, word2) {
+    const w1 = document.getElementById('tw-w1');
+    const w2 = document.getElementById('tw-w2');
+    if (w1) w1.value = word1;
+    if (w2) w2.value = word2;
+    const btn = document.getElementById('tw-go-btn');
+    if (btn) btn.classList.add('tw-ready');
+    submitTwoWords();
+  };
+
   async function submitTwoWords() {
     const w1El = document.getElementById('tw-w1');
     const w2El = document.getElementById('tw-w2');
-    const w1 = (w1El ? w1El.value.trim() : '').toUpperCase() || 'PLAY';
-    const w2 = (w2El ? w2El.value.trim() : '').toUpperCase() || 'GOLF';
+    let w1 = (w1El ? w1El.value.trim() : '').toUpperCase();
+    let w2 = (w2El ? w2El.value.trim() : '').toUpperCase();
 
-    if (!w1 || !w2) return;
+    // Auto-split if user typed both words in box 1
+    if (w1.includes(' ') && !w2) {
+      const parts = w1.split(/\s+/);
+      w1 = parts[0];
+      w2 = parts.slice(1).join(' ');
+      if (w1El) w1El.value = w1;
+      if (w2El) w2El.value = w2;
+    }
 
-    // Show loading
+    // If user only typed 1 word and box 2 is blank, smoothly prompt for box 2
+    if (w1 && !w2) {
+      if (w2El) {
+        w2El.focus();
+        const label = document.getElementById('tw-go-label');
+        if (label) {
+          label.textContent = `Enter 2nd word for "${w1}" (e.g. VIBES, RUN, WALK)`;
+          label.style.color = '#00e5ff';
+        }
+        w2El.style.border = '2px solid #00e5ff';
+        w2El.style.boxShadow = '0 0 20px rgba(0,229,255,0.6)';
+        return;
+      }
+    }
+
+    // Default fallbacks if completely empty
+    if (!w1 && !w2) {
+      w1 = 'PLAY';
+      w2 = 'GOLF';
+      if (w1El) w1El.value = w1;
+      if (w2El) w2El.value = w2;
+    } else if (!w2) {
+      w2 = 'VIBES';
+      if (w2El) w2El.value = w2;
+    }
+
+    // Show loading indicator
     const goBtn = document.getElementById('tw-go-btn');
     const loadingDots = document.getElementById('tw-loading-dots');
     const goLabel = document.getElementById('tw-go-label');
@@ -5637,10 +5692,13 @@ function targetMatchFromList(idx) {
     const xpWords = document.getElementById('xp-words');
     if (xpWords) xpWords.textContent = `${w1} · ${w2}`;
 
-    // Resolve real-world destination
+    // Resolve real-world destination (strict 2.5s race timeout)
     let destResult = null;
     try {
-      destResult = await resolveDestinationFromWords(w1, w2, playerLat, playerLon);
+      destResult = await Promise.race([
+        resolveDestinationFromWords(w1, w2, playerLat, playerLon),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2500))
+      ]);
     } catch (e) {
       destResult = {
         lat: playerLat + 0.002,
@@ -5679,71 +5737,130 @@ function targetMatchFromList(idx) {
 
   // Function to initialize two words intro input listeners
   function initTwoWordsIntroInputs() {
-    ['tw-w1', 'tw-w2'].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el || el.dataset.inputWired) return;
-      el.dataset.inputWired = 'true';
-      el.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-          if (id === 'tw-w1' && !document.getElementById('tw-w2')?.value.trim()) {
-            document.getElementById('tw-w2')?.focus();
-          } else {
-            submitTwoWords();
-          }
-        } else if (e.key === ' ' && id === 'tw-w1') {
-          // Space in word 1 advances to word 2 if there is at least one letter
-          if (el.value.trim().length > 0) {
-            e.preventDefault();
-            const w2El = document.getElementById('tw-w2');
-            if (w2El) {
-              w2El.focus();
-              w2El.select();
+    const w1 = document.getElementById('tw-w1');
+    const w2 = document.getElementById('tw-w2');
+    const btn = document.getElementById('tw-go-btn');
+    const form = document.getElementById('tw-intro-form');
+
+    if (form && !form.dataset.wired) {
+      form.dataset.wired = 'true';
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitTwoWords();
+      });
+    }
+
+    if (w1 && !w1.dataset.inputWired) {
+      w1.dataset.inputWired = 'true';
+
+      // Mobile Android input event: handles space, word splitting, autocomplete
+      w1.addEventListener('input', () => {
+        const val = w1.value;
+        if (val.includes(' ')) {
+          const parts = val.trim().split(/\s+/);
+          w1.value = (parts[0] || '').toUpperCase();
+          if (w2) {
+            w2.value = (parts.slice(1).join(' ') || '').toUpperCase();
+            w2.focus();
+            if (w2.value.length > 0) {
+              w2.selectionStart = w2.selectionEnd = w2.value.length;
             }
           }
-        } else if (e.key === 'Backspace' && id === 'tw-w2' && el.value.length === 0) {
-          // Backspace in empty word 2 returns to word 1
+        }
+        if (btn) btn.classList.toggle('tw-ready', !!(w1.value.trim() && (w2 ? w2.value.trim() : '')));
+      });
+
+      // Keydown handling: Enter, Next, Space, Tab
+      w1.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === 'Tab') {
           e.preventDefault();
-          const w1El = document.getElementById('tw-w1');
-          if (w1El) {
-            w1El.focus();
-            w1El.selectionStart = w1El.selectionEnd = w1El.value.length;
+          if (w2) {
+            w2.focus();
+            w2.select();
+          }
+        } else if (e.key === ' ') {
+          if (w1.value.trim().length > 0) {
+            e.preventDefault();
+            if (w2) {
+              w2.focus();
+              w2.select();
+            }
           }
         }
       });
-      el.addEventListener('input', () => {
-        const w1 = document.getElementById('tw-w1');
-        const w2 = document.getElementById('tw-w2');
-        const btn = document.getElementById('tw-go-btn');
-        if (btn) btn.classList.toggle('tw-ready', !!(w1?.value.trim() && w2?.value.trim()));
-      });
-    });
 
-    const w1El = document.getElementById('tw-w1');
-    if (w1El && !w1El.dataset.pasteWired) {
-      w1El.dataset.pasteWired = 'true';
-      w1El.addEventListener('paste', e => {
+      // Paste handling
+      w1.addEventListener('paste', (e) => {
         const text = (e.clipboardData || window.clipboardData)?.getData('text') || '';
         const parts = text.trim().split(/\s+/);
         if (parts.length >= 2) {
           e.preventDefault();
-          w1El.value = parts[0].toUpperCase();
-          const w2El = document.getElementById('tw-w2');
-          if (w2El) {
-            w2El.value = parts.slice(1).join(' ').toUpperCase();
-            w2El.focus();
+          w1.value = parts[0].toUpperCase();
+          if (w2) {
+            w2.value = parts.slice(1).join(' ').toUpperCase();
+            w2.focus();
           }
-          const btn = document.getElementById('tw-go-btn');
           if (btn) btn.classList.toggle('tw-ready', true);
         }
       });
-      w1El.addEventListener('keydown', e => {
-        if (e.key === 'Tab') {
+    }
+
+    if (w2 && !w2.dataset.inputWired) {
+      w2.dataset.inputWired = 'true';
+
+      w2.addEventListener('input', () => {
+        if (btn) btn.classList.toggle('tw-ready', !!((w1 ? w1.value.trim() : '') && w2.value.trim()));
+      });
+
+      w2.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
           e.preventDefault();
-          document.getElementById('tw-w2')?.focus();
+          submitTwoWords();
+        } else if (e.key === 'Backspace' && w2.value.length === 0) {
+          if (w1) {
+            w1.focus();
+            w1.selectionStart = w1.selectionEnd = w1.value.length;
+          }
         }
       });
     }
   }
+
+  // Transition to input on click / touch / keypress
+  function advanceToInput() {
+    if (window._phase1Timer) clearInterval(window._phase1Timer);
+    const cursorPhase = document.getElementById('tw-cursor-phase');
+    const flashPrompt = document.getElementById('tw-flash-prompt');
+    const inputPhase = document.getElementById('tw-input-phase');
+    if (cursorPhase) cursorPhase.style.display = 'none';
+    if (flashPrompt) {
+      flashPrompt.style.display = 'none';
+      flashPrompt.style.pointerEvents = 'none';
+      flashPrompt.style.opacity = '0';
+      try { flashPrompt.remove(); } catch(e) {}
+    }
+    if (inputPhase) {
+      inputPhase.style.display = 'flex';
+      inputPhase.style.pointerEvents = 'auto';
+      inputPhase.style.position = 'relative';
+      inputPhase.style.zIndex = '50';
+    }
+
+    initTwoWordsIntroInputs();
+
+    // Auto-focus first word after a short delay
+    setTimeout(() => {
+      const w1El = document.getElementById('tw-w1');
+      if (w1El) w1El.focus();
+    }, 80);
+
+    // Remove the listeners after advancing
+    document.removeEventListener('click', advanceToInput);
+    document.removeEventListener('pointerdown', advanceToInput);
+    document.removeEventListener('touchend', advanceToInput);
+    document.removeEventListener('keydown', advanceToInput);
+  }
+  window.advanceToInput = advanceToInput;
 
   function runIntroSequence() {
     initTwoWordsIntroInputs();
@@ -5770,7 +5887,6 @@ function targetMatchFromList(idx) {
     // Phase 1: Blink cursor for 1.2s, then start flashing prompts
     const promptEl = document.getElementById('tw-flash-prompt');
     let pIdx = 0;
-    let phase1Timer;
 
     function showNextPrompt() {
       if (!promptEl) return;
@@ -5785,35 +5901,14 @@ function targetMatchFromList(idx) {
     // Start flashing after 1.2s
     setTimeout(() => {
       showNextPrompt();
-      phase1Timer = setInterval(showNextPrompt, 1600);
+      window._phase1Timer = setInterval(showNextPrompt, 1600);
     }, 1200);
 
-    // Transition to input on click / touch / keypress
-    function advanceToInput() {
-      clearInterval(phase1Timer);
-      const cursorPhase = document.getElementById('tw-cursor-phase');
-      const inputPhase = document.getElementById('tw-input-phase');
-      if (cursorPhase) cursorPhase.style.display = 'none';
-      if (inputPhase) { inputPhase.style.display = 'flex'; }
-
-      // Auto-focus first word after a short delay
-      setTimeout(() => {
-        const w1El = document.getElementById('tw-w1');
-        if (w1El) w1El.focus();
-      }, 80);
-
-      initTwoWordsIntroInputs();
-
-      // Remove the listener after advancing
-      document.removeEventListener('click', advanceToInput);
-      document.removeEventListener('keydown', advanceToInput);
-    }
-
-    // Click anywhere or press any key to advance to input
-    setTimeout(() => {
-      document.addEventListener('click', advanceToInput);
-      document.addEventListener('keydown', advanceToInput, { once: false });
-    }, 800);
+    // Click anywhere, tap anywhere, or press any key to advance to input
+    document.addEventListener('click', advanceToInput);
+    document.addEventListener('pointerdown', advanceToInput);
+    document.addEventListener('touchend', advanceToInput);
+    document.addEventListener('keydown', advanceToInput, { once: false });
   }
 
   // ============================================================
