@@ -4,7 +4,8 @@
   "description": "Real-Time GPS Multiplayer & POI Backend Server for TwoWords",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "launch": "node ../scripts/sync_and_launch.cjs"
   },
   "dependencies": {
     "compression": "^1.8.2",

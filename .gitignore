@@ -56,6 +56,7 @@ Install-*.ps1
 Invoke-*.ps1
 Repair-*.ps1
 Run-*.ps1
+!Run-TwoWords.ps1
 Run.ps1
 Run-*.txt
 Setup-*.ps1
