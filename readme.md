@@ -1,176 +1,81 @@
+# Two Words 🎯 
 
-# Two Words 🎯
+> A real-world GPS social navigation game connecting people and destinations through two-word ambitions.
 
-> A Pokémon Go-style social app where two words connect you to nearby people and curated content.
-
-Users input **two words** capturing their current interest (e.g., *"play golf"*, *"learn piano"*, *"eat ramen"*), and the app curates relevant content while revealing nearby users who share similar ambitions on a real-time GPS map overlay.
+Users input **two words** capturing their ambition or vibe (e.g., *"PLAY GOLF"*, *"CYBER RUN"*, *"BEACH VIBES"*, *"NIGHT WALK"*). The app instantly generates real-world destinations, 3D cartography, Live View AR guidance, and discovers nearby players sharing similar ambitions.
 
 ---
 
-## Architecture
+## 🚀 Quick Start
 
+### Option 1: One-Click Launch (Windows)
+Double-click `run.bat` or run in PowerShell:
+```powershell
+.\Run-TwoWords.ps1
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    React Native App                     │
-│              (TypeScript + Expo/RN CLI)                 │
-├──────────────────┬──────────────────────────────────────┤
-│   REST (HTTPS)   │        WebSocket (Socket.IO)         │
-│   Auth · CRUD    │   Location pings · Chat · Presence   │
-└────────┬─────────┴──────────────┬───────────────────────┘
-         │                        │
-┌────────▼────────────────────────▼───────────────────────┐
-│                  Node.js + Express                      │
-│             (TypeScript · Socket.IO)                    │
-├─────────────────────────────────────────────────────────┤
-│  Middleware: JWT Auth · Rate Limit · Zod Validation     │
-├──────────┬──────────────┬───────────────────────────────┤
-│  Routes  │  Socket Hubs │   Services / Models           │
-│  /auth   │  location    │   UserService                 │
-│  /ambit  │  chat        │   AmbitionService             │
-│  /disc   │              │   DiscoverService             │
-│  /chats  │              │   ChatService                 │
-└────┬─────┴──────┬───────┴───────────────────────────────┘
-     │            │
-┌────▼────────────▼───────────────────────────────────────┐
-│         PostgreSQL 16 + PostGIS + pgvector              │
-│   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │
-│   │  Users   │ │Ambitions │ │ Sessions │ │  Chats   │  │
-│   │          │ │(+vector) │ │(+geom)   │ │+Messages │  │
-│   └──────────┘ └──────────┘ └──────────┘ └──────────┘  │
-│   Extensions: uuid-ossp · pg_trgm · postgis · vector   │
-└─────────────────────────────────────────────────────────┘
-```
+This script automatically:
+1. Verifies your Node.js runtime and dependencies
+2. Starts the backend server (HTTP `3000` & HTTPS `3443` for Camera AR & GPS)
+3. Detects your LAN IPv4 address for mobile testing
+4. Opens your default browser to `http://localhost:3000`
 
----
-
-## Tech Stack
-
-| Layer      | Technology                                          |
-| ---------- | --------------------------------------------------- |
-| Frontend   | React Native · TypeScript · Expo                    |
-| Backend    | Node.js · Express · Socket.IO · TypeScript          |
-| Database   | PostgreSQL 16 · PostGIS 3.4 · pgvector              |
-| Auth       | JWT (access + refresh tokens) · bcryptjs             |
-| Validation | Zod (env + request schemas)                          |
-| Realtime   | Socket.IO (location pings, chat, presence)           |
-| Maps       | Mapbox GL (token required)                           |
-| Infra      | Docker Compose (local dev)                           |
-
----
-
-## Prerequisites
-
-- **Node.js** ≥ 18
-- **Docker** & **Docker Compose** v2+
-- **Git**
-
----
-
-## Quick Start
-
-### 1. Clone & install
-
+### Option 2: Node.js Server Direct
 ```bash
-git clone <repo-url> two-words-app
-cd two-words-app/backend
+cd server
 npm install
+node server.js
 ```
-
-### 2. Configure environment
-
-```bash
-cp .env.example .env
-# Edit .env — set JWT_SECRET, JWT_REFRESH_SECRET, MAPBOX_TOKEN
-```
-
-### 3. Start the database
-
-```bash
-# From project root
-docker compose up -d
-```
-
-The init script will automatically create the required PostgreSQL extensions on first run.
-
-### 4. Apply the schema
-
-```bash
-# Connect to the running container
-docker exec -i twowords-db psql -U twowords -d twowords < backend/src/models/schema.sql
-```
-
-### 5. Run the backend (dev mode)
-
-```bash
-cd backend
-npm run dev
-```
-
-The server starts on `http://localhost:3001` (or whichever port you set in `.env`).
+Then open `http://localhost:3000` in any browser.
 
 ---
 
-## Project Structure
+## 📱 Playing on Android / Mobile
+
+1. **Local Wi-Fi Network**:
+   - Start the server on your computer using `run.bat`.
+   - The launcher will output your local network address (e.g., `https://192.168.x.x:3443`).
+   - Open that URL in Chrome on your Android device (accept the self-signed certificate for local HTTPS).
+2. **PWA / Add to Home Screen**:
+   - In Chrome on Android, tap the three dots **(⋮)** and select **Add to Home screen** / **Install App**.
+   - Launch TwoWords from your home screen as a full-screen native-like app with GPS and Camera AR enabled.
+3. **Stand-alone Web / APK**:
+   - The game runs directly in any modern mobile browser via `index.html`.
+   - On the intro screen, type your two words into Box 1 and Box 2, tap "Next" on your keyboard or choose any of the quick-suggestion chips, and tap **Find My Matches ➔** to start.
+
+---
+
+## 🌟 Key Features
+
+- **2-Word Ambition Engine**: Enter any 2 words to automatically locate matching points of interest via OpenStreetMap.
+- **Mobile-Optimized Intro Screen**: Auto-splitting of two-word entries, native Android soft keyboard navigation (`enterkeyhint="next"` / `enterkeyhint="go"`), and touch-friendly quick chips.
+- **Live 3D Cartography & Bird's-Eye View**: MapLibre 3D vector map, procedural building heights, and real-time player GPS marker.
+- **Augmented Reality Live View**: Camera AR overlay with directional compass HUD, target beacons, distance indicator, and heading damping.
+- **Custom Character Creator**: Customize your avatar emoji icon, glow aura color, and player style.
+- **Real-time Discovery & WebSocket**: Sync ambitions and locate nearby players via WebSocket on port `3000`/`3443`.
+
+---
+
+## 🛠️ Project Structure
 
 ```
-two-words-app/
-├── docker-compose.yml          # PostgreSQL + PostGIS container
-├── init-extensions.sql         # DB extension bootstrap
-├── README.md
-└── backend/
-    ├── package.json
-    ├── tsconfig.json
-    ├── .env.example
-    └── src/
-        ├── app.ts              # Express + Socket.IO entry point
-        ├── routes.ts           # All REST route definitions
-        ├── config/
-        │   ├── env.ts          # Zod-validated environment config
-        │   └── database.ts     # pg Pool + query helpers
-        ├── middleware/
-        │   ├── auth.ts         # JWT auth (REST + Socket.IO)
-        │   ├── validate.ts     # Zod request validation
-        │   └── rateLimit.ts    # Rate limiting presets
-        └── models/
-            └── schema.sql      # Full production DDL
+TwoWords/
+├── index.html                   # Main stand-alone web application & game client
+├── MASTER_index.html            # Master client template
+├── manifest.json                # Progressive Web App (PWA) manifest
+├── sw.js                        # Service Worker for offline PWA caching
+├── run.bat                      # One-click Windows launcher
+├── Run-TwoWords.ps1             # PowerShell master sync and launcher
+├── scripts/
+│   └── sync_and_launch.cjs      # Server check, port manager, and network IP detector
+└── server/
+    ├── server.js                # Express + WebSocket HTTP/HTTPS server
+    ├── package.json             # Server dependencies
+    └── public/
+        └── index.html           # Production client bundle served on :3000/:3443
 ```
 
 ---
 
-## API Overview
-
-| Method | Endpoint                  | Description               |
-| ------ | ------------------------- | ------------------------- |
-| POST   | `/api/auth/register`      | Create account            |
-| POST   | `/api/auth/login`         | Obtain tokens             |
-| POST   | `/api/auth/refresh`       | Refresh access token      |
-| GET    | `/api/auth/me`            | Get current user profile  |
-| POST   | `/api/ambitions`          | Set two-word ambition     |
-| GET    | `/api/ambitions/active`   | Get active ambition       |
-| PUT    | `/api/ambitions/:id`      | Update ambition           |
-| DELETE | `/api/ambitions/:id`      | Deactivate ambition       |
-| GET    | `/api/discover/nearby`    | Find nearby users         |
-| GET    | `/api/discover/content`   | Get curated content links |
-| GET    | `/api/chats`              | List conversations        |
-| POST   | `/api/chats`              | Start a conversation      |
-| GET    | `/api/chats/:id/messages` | Get chat messages         |
-| POST   | `/api/chats/:id/messages` | Send a message            |
-
----
-
-## Socket.IO Events
-
-| Event             | Direction | Description                         |
-| ----------------- | --------- | ----------------------------------- |
-| `location:ping`   | Client →  | Send current GPS coordinates        |
-| `location:nearby` | → Client  | Receive nearby users with ambitions |
-| `chat:message`    | Both      | Send / receive chat messages        |
-| `chat:typing`     | Both      | Typing indicator                    |
-| `user:online`     | → Client  | User came online                    |
-| `user:offline`    | → Client  | User went offline                   |
-
----
-
-## License
+## 📄 License
 
 MIT
