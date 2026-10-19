@@ -89,33 +89,94 @@ function generateWorld({ word1 = 'PLAY', word2 = 'GOLF', densityMultiplier = 1.0
 
   pushLog('word_engine', `Processing input token pair: [${w1}, ${w2}] with density multiplier ${mult}x (${densityMode})`);
 
-  // Procedural theme generator
+  // ─── Procedural Theme Engine v2 ─────────────────────────────────────────────
+  // 40+ semantic categories. Any two-word input generates a uniquely styled world.
   const pair = `${w1} ${w2}`;
-  let themeName = `${w1} & ${w2} Frontier`;
-  let accentColor = '#00e5ff';
-  let secondaryColor = '#a855f7';
-  let pathColor = '#00e5ff';
+  let themeName = '';
+  let accentColor = '';
+  let secondaryColor = '';
+  let pathColor = '';
 
-  if (pair.includes('GOLF')) {
-    themeName = 'Fairway Green & Golden Precision';
-    accentColor = '#00ff99';
-    secondaryColor = '#ffd700';
-    pathColor = '#00e5ff';
-  } else if (pair.includes('CYBER') || pair.includes('RUN') || pair.includes('TECH')) {
-    themeName = 'Neon Cyber Grid & High-Velocity Stride';
-    accentColor = '#00e5ff';
-    secondaryColor = '#ff0077';
-    pathColor = '#00e5ff';
-  } else if (pair.includes('BEACH') || pair.includes('VIBES') || pair.includes('CHILL')) {
-    themeName = 'Sunlit Coastal Shore & Twilight Drift';
-    accentColor = '#ffaa00';
-    secondaryColor = '#00d4ff';
-    pathColor = '#ffd700';
-  } else if (pair.includes('NIGHT') || pair.includes('WALK')) {
-    themeName = 'Obsidian Midnight & Bioluminescent Lanterns';
-    accentColor = '#a855f7';
-    secondaryColor = '#3b82f6';
-    pathColor = '#a855f7';
+  const THEME_MAP = [
+    // ── SPORT ────────────────────────────────────────────────────────────────
+    { keys: ['GOLF'],         name: 'Fairway Green & Golden Precision',           accent: '#00ff99', secondary: '#ffd700', path: '#00e5ff' },
+    { keys: ['SURF','WAVE'],  name: 'Turquoise Swell & Wind-Carved Shore',        accent: '#00d4ff', secondary: '#ff8c00', path: '#00d4ff' },
+    { keys: ['SKATE','BLADE'],name: 'Concrete Canvas & Kinetic Rail City',        accent: '#ff3366', secondary: '#ffd700', path: '#ff3366' },
+    { keys: ['CLIMB','PEAK'], name: 'Granite Summit & Alpine Horizon Protocol',   accent: '#a3e635', secondary: '#0ea5e9', path: '#a3e635' },
+    { keys: ['RUN','SPRINT'], name: 'Neon Stride & Velocity Meridian',            accent: '#00e5ff', secondary: '#ff0077', path: '#00e5ff' },
+    { keys: ['SWIM','DIVE'],  name: 'Bioluminescent Depth & Midnight Tide',       accent: '#22d3ee', secondary: '#7c3aed', path: '#22d3ee' },
+    { keys: ['BIKE','CYCLE'], name: 'Carbon Trail & Spinning Geometry',           accent: '#f59e0b', secondary: '#ef4444', path: '#f59e0b' },
+    { keys: ['DANCE'],        name: 'Chromatic Rhythm & Pulse Architecture',      accent: '#ec4899', secondary: '#a855f7', path: '#ec4899' },
+    { keys: ['FIGHT','BOXER'],name: 'Iron Ring & Shadowbox Circuit',              accent: '#ef4444', secondary: '#f97316', path: '#ef4444' },
+    { keys: ['HIKE','TRAIL'], name: 'Terracotta Ridge & Forest Meridian',         accent: '#84cc16', secondary: '#7c2d12', path: '#84cc16' },
+    // ── NATURE ───────────────────────────────────────────────────────────────
+    { keys: ['OCEAN','SEA'],  name: 'Aquatic Expanse & Deep Blue Sovereignty',   accent: '#0ea5e9', secondary: '#06b6d4', path: '#0ea5e9' },
+    { keys: ['FIRE','FLAME'], name: 'Inferno Corridor & Ember Drift Protocol',    accent: '#f97316', secondary: '#ef4444', path: '#f97316' },
+    { keys: ['FOREST','WOOD'],name: 'Emerald Canopy & Root System Nexus',         accent: '#22c55e', secondary: '#713f12', path: '#22c55e' },
+    { keys: ['DESERT','SAND'],name: 'Ochre Dunes & Golden Hour Meridian',         accent: '#fbbf24', secondary: '#d97706', path: '#fbbf24' },
+    { keys: ['STORM','THUNDER'],name: 'Voltage Sky & Electro-Anvil Domain',      accent: '#818cf8', secondary: '#f0abfc', path: '#818cf8' },
+    { keys: ['SNOW','ICE','FROST'],name: 'Crystalline Tundra & Glacial Silence', accent: '#bae6fd', secondary: '#818cf8', path: '#bae6fd' },
+    { keys: ['RAIN','CLOUD'], name: 'Monsoon Grid & Silver Veil Frequency',       accent: '#94a3b8', secondary: '#0284c7', path: '#94a3b8' },
+    { keys: ['SUN','SOLAR'],  name: 'Radiant Zenith & Photon Cascade Lanes',      accent: '#fde047', secondary: '#f97316', path: '#fde047' },
+    { keys: ['MOON','LUNAR'], name: 'Selenite Arc & Nocturnal Cartography',       accent: '#e2e8f0', secondary: '#818cf8', path: '#e2e8f0' },
+    { keys: ['STAR','COSMOS'],name: 'Stellar Drift & Deep Space Topology',        accent: '#c4b5fd', secondary: '#1d4ed8', path: '#c4b5fd' },
+    { keys: ['FLOWER','BLOOM'],name: 'Pollination Circuit & Petal Grid Arcs',    accent: '#f9a8d4', secondary: '#4ade80', path: '#f9a8d4' },
+    // ── CITY & CULTURE ───────────────────────────────────────────────────────
+    { keys: ['CITY','URBAN','METRO'],name: 'Urban Frequency & Glass Tower Lanes',accent: '#a78bfa', secondary: '#38bdf8', path: '#a78bfa' },
+    { keys: ['NIGHT','DARK'], name: 'Obsidian Midnight & Bioluminescent Lanterns',accent: '#a855f7', secondary: '#3b82f6', path: '#a855f7' },
+    { keys: ['STREET','ALLEY'],name: 'Concrete Veins & Graffiti Signal Matrix', accent: '#fb923c', secondary: '#06b6d4', path: '#fb923c' },
+    { keys: ['MARKET','TRADE'],name: 'Bazaar Circuit & Commerce Flow Architecture',accent: '#f59e0b', secondary: '#16a34a', path: '#f59e0b' },
+    // ── TECH & SCI-FI ────────────────────────────────────────────────────────
+    { keys: ['CYBER','TECH','HACK','CODE'],name: 'Neon Cyber Grid & High-Velocity Stride',accent: '#00e5ff', secondary: '#ff0077', path: '#00e5ff' },
+    { keys: ['ROBOT','AI','MECH'],name: 'Autonomous Grid & Neural Topology Mesh',accent: '#6ee7b7', secondary: '#3b82f6', path: '#6ee7b7' },
+    { keys: ['QUANTUM','FLUX'],name: 'Superposition Field & Entangled Corridor',  accent: '#d946ef', secondary: '#06b6d4', path: '#d946ef' },
+    { keys: ['SPACE','GALAXY'],name: 'Interstellar Void & Graviton Path Weave',   accent: '#6366f1', secondary: '#0f172a', path: '#6366f1' },
+    { keys: ['MATRIX','PROGRAM'],name: 'Source Code Lattice & Green Rain Node',  accent: '#00ff41', secondary: '#0d0208', path: '#00ff41' },
+    // ── FANTASY & MYSTICAL ───────────────────────────────────────────────────
+    { keys: ['DRAGON','DRAGON'],name: 'Dragonfire Meridian & Scorched Realm',     accent: '#dc2626', secondary: '#fbbf24', path: '#dc2626' },
+    { keys: ['MAGIC','SPELL'], name: 'Arcane Lattice & Ley Line Intersection',    accent: '#c084fc', secondary: '#34d399', path: '#c084fc' },
+    { keys: ['SHADOW','GHOST'],name: 'Umbral Fabric & Spectral Geometry Matrix',  accent: '#6b7280', secondary: '#7c3aed', path: '#6b7280' },
+    { keys: ['LIGHT','AURA'], name: 'Photonic Halo & Radiance Node Network',      accent: '#fef3c7', secondary: '#fcd34d', path: '#fef3c7' },
+    // ── FOOD & LIFESTYLE ─────────────────────────────────────────────────────
+    { keys: ['COFFEE','CAFE'],name: 'Roasted Meridian & Espresso Signal Map',     accent: '#92400e', secondary: '#f59e0b', path: '#a16207' },
+    { keys: ['MUSIC','BEAT'], name: 'Frequency Canvas & Harmonic Pathway Grid',   accent: '#c084fc', secondary: '#ec4899', path: '#c084fc' },
+    { keys: ['BEACH','CHILL','VIBE'],name: 'Sunlit Coastal Shore & Twilight Drift',accent: '#ffaa00', secondary: '#00d4ff', path: '#ffd700' },
+    // ── EMOTION & PHILOSOPHY ─────────────────────────────────────────────────
+    { keys: ['PEACE','ZEN','CALM'],name: 'Stillwater Domain & Mindful Arc Network',accent: '#86efac', secondary: '#a5f3fc', path: '#86efac' },
+    { keys: ['FURY','RAGE','WAR'],name: 'Crimson Front & Battle-Forged Topology', accent: '#dc2626', secondary: '#7f1d1d', path: '#ef4444' },
+    { keys: ['LOVE','HEART'], name: 'Rosy Resonance & Compassion Grid Arcs',      accent: '#f43f5e', secondary: '#fb7185', path: '#f43f5e' },
+    { keys: ['DREAM','VISION'],name: 'Oneiric Drift & Subconscious Cartography',  accent: '#a78bfa', secondary: '#f0abfc', path: '#c4b5fd' },
+  ];
+
+  // Match against the first keyword found in the pair
+  let matchedTheme = null;
+  for (const theme of THEME_MAP) {
+    if (theme.keys.some(k => pair.includes(k))) {
+      matchedTheme = theme;
+      break;
+    }
+  }
+
+  if (matchedTheme) {
+    themeName = matchedTheme.name;
+    accentColor = matchedTheme.accent;
+    secondaryColor = matchedTheme.secondary;
+    pathColor = matchedTheme.path;
+  } else {
+    // ── Deterministic Color Hash Fallback ──────────────────────────────────
+    // Any novel word pair gets a unique, non-generic color palette derived
+    // from the character codes of the two words (always same output for same input).
+    const hash1 = [...w1].reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0);
+    const hash2 = [...w2].reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0);
+    const h1 = Math.abs(hash1) % 360;
+    const h2 = Math.abs(hash2) % 360;
+    const s = 70 + (Math.abs(hash1) % 20); // 70-90% saturation
+    const l = 55 + (Math.abs(hash2) % 15); // 55-70% lightness
+    const toHsl = (h, sat, lit) => `hsl(${h},${sat}%,${lit}%)`;
+    accentColor = toHsl(h1, s, l);
+    secondaryColor = toHsl((h1 + 140) % 360, s - 10, l - 10);
+    pathColor = toHsl(h2, s + 5, l + 5);
+    themeName = `${w1} Frontier & ${w2} Meridian Protocol`;
   }
 
   worldDatabase.activeWorld.theme = {
