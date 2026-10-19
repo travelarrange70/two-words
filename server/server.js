@@ -651,21 +651,13 @@ app.post('/api/ai/chat', async (req, res) => {
   const { sessionId, message, context } = req.body;
   if (!message) return res.status(400).json({ success: false, error: 'message is required' });
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    // Graceful offline fallback — VERA still responds, just without AI
-    const fallbacks = [
-      'I am VERA! Your GEMINI_API_KEY is not set yet — add it to server/.env to unlock my full intelligence. For now: keep exploring your ' + (context && context.word1 ? context.word1 + ' ' + context.word2 : 'two words') + ' adventure!',
-      'Voice commands work without my AI brain, but to really talk to me, add GEMINI_API_KEY to server/.env.',
-      'Almost there — add GEMINI_API_KEY=your_key to server/.env and restart. I have so much to tell you!'
-    ];
-    return res.json({ success: true, text: fallbacks[Math.floor(Math.random() * fallbacks.length)], action: null });
-  }
   try {
     const result = await aiAgent.chat({ sessionId: sessionId || 'default', message, context: context || {}, apiKey });
     res.json({ success: true, ...result });
   } catch (err) {
     console.error('[VERA] Chat error:', err.message);
-    res.status(500).json({ success: false, error: err.message, text: 'VERA is thinking... try again in a moment.' });
+    const fallback = aiAgent.generateSmartVeraResponse({ message, context: context || {} });
+    res.json({ success: true, ...fallback });
   }
 });
 
@@ -673,16 +665,35 @@ app.post('/api/ai/chat', async (req, res) => {
 app.post('/api/ai/greet', async (req, res) => {
   const { word1, word2, city } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.json({ success: true, text: 'Hey! I am VERA, your TwoWords guide. Set GEMINI_API_KEY in server/.env to unlock my full personality. Let us go explore your ' + (word1 || 'TWO') + ' ' + (word2 || 'WORDS') + ' adventure!', action: null });
-  }
   try {
     const result = await aiAgent.generateGreeting({ word1, word2, city, apiKey });
     res.json({ success: true, ...result });
   } catch (err) {
     console.error('[VERA] Greet error:', err.message);
-    res.json({ success: true, text: 'Welcome to TwoWords! Your journey with ' + (word1||'') + ' ' + (word2||'') + ' starts now. I am VERA, your guide. Ask me anything!', action: null });
+    res.json({
+      success: true,
+      text: 'Hey! I am VERA, your TwoWords companion. Ready to explore ' + (word1 || 'PLAY') + ' ' + (word2 || 'GOLF') + ' in ' + (city || 'Oakland') + '? Ask me for instructional videos, courses, or directions!',
+      action: null
+    });
   }
+});
+
+// POST /api/ai/set-key { apiKey }
+app.post('/api/ai/set-key', (req, res) => {
+  const { apiKey } = req.body;
+  if (!apiKey || typeof apiKey !== 'string') return res.status(400).json({ success: false, error: 'apiKey string required' });
+  process.env.GEMINI_API_KEY = apiKey.trim();
+  try {
+    const envPath = path.join(__dirname, '.env');
+    let envContent = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
+    if (envContent.includes('GEMINI_API_KEY=')) {
+      envContent = envContent.replace(/GEMINI_API_KEY=.*/g, 'GEMINI_API_KEY=' + apiKey.trim());
+    } else {
+      envContent += '\nGEMINI_API_KEY=' + apiKey.trim() + '\n';
+    }
+    fs.writeFileSync(envPath, envContent, 'utf8');
+  } catch(e) {}
+  res.json({ success: true, message: 'Gemini API key configured successfully' });
 });
 
 // DELETE /api/ai/session/:id  — clear history

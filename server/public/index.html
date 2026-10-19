@@ -922,6 +922,36 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
   background: #cfd8dc; color: #78909c; cursor: not-allowed;
 }
 
+
+/* VERA Rich Content Styling */
+.vera-section-title {
+  font-size: 0.88rem; font-weight: 900; color: #00e5ff;
+  margin: 10px 0 6px 0; border-bottom: 1px solid rgba(0,229,255,0.25);
+  padding-bottom: 4px; display: flex; align-items: center; gap: 6px;
+}
+.vera-action-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255, 30, 60, 0.16); border: 1.5px solid rgba(255, 60, 90, 0.45);
+  border-radius: 10px; padding: 5px 12px; margin: 4px 0;
+  color: #ff8090 !important; font-weight: 800; font-size: 0.8rem;
+  text-decoration: none; transition: all 0.2s ease;
+}
+.vera-action-link:hover {
+  background: rgba(255, 30, 60, 0.35); border-color: #ff3355;
+  color: #fff !important; transform: translateX(2px);
+  box-shadow: 0 4px 14px rgba(255, 30, 60, 0.4);
+}
+.vera-bullet-item {
+  display: flex; gap: 8px; margin: 4px 0; font-size: 0.82rem; line-height: 1.4;
+}
+.vera-bullet-dot { color: #00e5ff; font-weight: 900; flex-shrink: 0; }
+.vera-num-badge {
+  background: rgba(0,229,255,0.2); border: 1px solid rgba(0,229,255,0.4);
+  color: #00e5ff; border-radius: 50%; width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 800; flex-shrink: 0; margin-top: 1px;
+}
+
 </style>
 </head>
 <body>
@@ -1624,7 +1654,16 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
           <input type="checkbox" id="pref-haptic-checkbox" checked style="accent-color:#00e5ff; width:18px; height:18px; cursor:pointer;" />
         </div>
       </div>
-      <button onclick="confirmAvatarAndEnter(); document.getElementById('settings-modal').style.display='none';" style="width:100%; background:linear-gradient(135deg,#00e5ff,#1a73e8); border:none; padding:12px; border-radius:12px; color:#fff; font-weight:800; cursor:pointer;">Save Settings</button>
+      
+        <div style="margin-top:12px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px; margin-bottom:14px;">
+          <label style="display:block; font-size:0.75rem; font-weight:700; color:#a0aec0; margin-bottom:6px;">Google Gemini API Key (Optional)</label>
+          <div style="display:flex; gap:8px;">
+            <input type="password" id="gemini-key-input" placeholder="Paste Gemini key (AIzaSy...)" style="flex:1; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:8px 12px; color:#fff; font-size:0.85rem; outline:none;" />
+            <button type="button" onclick="saveGeminiApiKey()" style="background:linear-gradient(135deg,#00e5ff,#1a73e8); border:none; border-radius:12px; color:#fff; font-weight:800; font-size:0.75rem; padding:0 14px; cursor:pointer;">Save</button>
+          </div>
+          <div style="font-size:0.7rem; color:#78909c; margin-top:4px;">VERA has high-IQ built-in knowledge for videos & coaching, or connects to live Gemini when key is set.</div>
+        </div>
+        <button onclick="confirmAvatarAndEnter(); document.getElementById('settings-modal').style.display='none';" style="width:100%; background:linear-gradient(135deg,#00e5ff,#1a73e8); border:none; padding:12px; border-radius:12px; color:#fff; font-weight:800; cursor:pointer;">Save Settings</button>
     </div>
   </div>
 
@@ -8351,11 +8390,11 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
       </div>
       <div class="vera-messages" id="vera-messages"></div>
       <div class="vera-quick-chips" id="vera-chips">
-        <span class="vera-chip" data-q="What can you help me with?">What can you do?</span>
-        <span class="vera-chip" data-q="Show me events nearby for my two words">Events nearby</span>
-        <span class="vera-chip" data-q="Who else has my two words?">Find people</span>
-        <span class="vera-chip" data-q="Give me a challenge for my two words">Daily challenge</span>
-        <span class="vera-chip" data-q="Navigate me to my match">Navigate →</span>
+        <span class="vera-chip" data-q="Show me some instructional videos on golfing">🎥 Golf Lessons</span>
+        <span class="vera-chip" data-q="Where can I play golf nearby?">⛳ Golf Courses</span>
+        <span class="vera-chip" data-q="Give me a challenge for my two words">⚔️ Daily Quests</span>
+        <span class="vera-chip" data-q="Navigate me to my match">🎯 Navigate</span>
+        <span class="vera-chip" data-q="Open AR live 3D mode">📷 3D AR Mode</span>
       </div>
       <div class="vera-input-row">
         <input type="text" id="vera-text-input" placeholder="Ask VERA anything..." autocomplete="off" enterkeyhint="send" />
@@ -8426,6 +8465,28 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
     }
   }
   window.toggleVeraPanel = toggleVeraPanel;
+
+  async function saveGeminiApiKey() {
+    const input = document.getElementById('gemini-key-input');
+    if (!input || !input.value.trim()) return;
+    const key = input.value.trim();
+    try {
+      const res = await fetch('/api/ai/set-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: key })
+      });
+      if (res.ok) {
+        showFloatingXPNotification('Gemini Key Saved! 🤖', 'VERA intelligence connected');
+        input.value = '';
+        input.placeholder = 'Key active (••••••••)';
+      }
+    } catch(e) {
+      showFloatingXPNotification('Error saving key', 'Please try again');
+    }
+  }
+  window.saveGeminiApiKey = saveGeminiApiKey;
+
 
   // ── Greet player ─────────────────────────────────────────────────────────
   async function showVeraGreeting() {
@@ -8509,6 +8570,15 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
     const delay = Math.min(1200, (speech || '').length * 18);
     setTimeout(() => {
       switch (action) {
+        case 'SHOW_VIDEOS':
+        case 'OPEN_VIDEOS':
+          if (typeof window.openUniversePanel === 'function') {
+            window.openUniversePanel();
+            setTimeout(() => {
+              if (typeof window.switchUniverseTab === 'function') window.switchUniverseTab('videos');
+            }, 300);
+          }
+          break;
         case 'OPEN_UNIVERSE':
           if (typeof window.openUniversePanel === 'function') window.openUniversePanel();
           break;
@@ -8537,6 +8607,35 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
   }
 
   // ── Message bubble rendering ─────────────────────────────────────────────
+  function formatVeraMarkdown(text) {
+    if (!text) return '';
+    let s = text.replace(/\{"action":"[A-Z_]+"\}/g, '').trim();
+
+    // Escape basic HTML
+    s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Markdown Headers ###
+    s = s.replace(/###\s+(.*?)(\n|$)/g, '<div class="vera-section-title">$1</div>');
+
+    // Bold **text**
+    s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // Markdown Links [Title](url)
+    s = s.replace(/\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="vera-action-link">▶ $1 ↗</a>');
+
+    // Bullet items
+    s = s.replace(/^[•\-]\s+(.*)$/gm, '<div class="vera-bullet-item"><span class="vera-bullet-dot">•</span><span>$1</span></div>');
+
+    // Numbered items
+    s = s.replace(/^(\d+)\.\s+(.*)$/gm, '<div class="vera-bullet-item"><span class="vera-num-badge">$1</span><span>$2</span></div>');
+
+    // Newlines
+    s = s.replace(/\n\n/g, '<div style="height:6px;"></div>');
+    s = s.replace(/\n/g, '<br>');
+
+    return s;
+  }
+
   function appendVeraMessage(role, text) {
     const container = document.getElementById('vera-messages');
     if (!container) return;
@@ -8544,7 +8643,7 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
 
     const div = document.createElement('div');
     div.className = 'vera-msg vera-msg-' + role;
-    div.innerHTML = '<div class="vera-bubble">' + escapeHtml(text) + '</div>';
+    div.innerHTML = '<div class="vera-bubble">' + (role === 'vera' ? formatVeraMarkdown(text) : escapeHtml(text)) + '</div>';
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
   }
@@ -8577,16 +8676,35 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
   }
 
   // ── Text-to-Speech ────────────────────────────────────────────────────────
+  function cleanTextForSpeech(text) {
+    if (!text) return '';
+    return text
+      .replace(/\{"action":"[A-Z_]+"\}/g, '')
+      .replace(/\[(.*?)\]\(https?:\/\/[^\s)]+\)/g, '$1')
+      .replace(/https?:\/\/[^\s]+/g, '')
+      .replace(/[#*•_\x60]/g, '')
+      .replace(/\n+/g, ' ')
+      .trim();
+  }
+
   function veraSpeak(text) {
     if (!veraSynth) return;
     if (!text) return;
     veraSynth.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Prevent speech recognition from picking up VERA's own audio
+    if (veraListening && veraRecognition) {
+      try { veraRecognition.stop(); } catch(_) {}
+    }
+
+    const spokenText = cleanTextForSpeech(text);
+    if (!spokenText) return;
+
+    const utterance = new SpeechSynthesisUtterance(spokenText);
     utterance.voice  = veraVoice;
-    utterance.rate   = 1.0;
-    utterance.pitch  = 1.1;
-    utterance.volume = 0.92;
+    utterance.rate   = 1.02;
+    utterance.pitch  = 1.08;
+    utterance.volume = 0.95;
 
     utterance.onstart = () => {
       veraSpeaking = true;
@@ -8595,10 +8713,12 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
       if (label) label.textContent = 'VERA is speaking...';
     };
     utterance.onend = () => {
-      veraSpeaking = false;
-      if (veraOrb) veraOrb.classList.remove('vera-speaking');
-      const label = document.getElementById('vera-status-label');
-      if (label) label.textContent = 'Your TwoWords Guide · Always here';
+      setTimeout(() => {
+        veraSpeaking = false;
+        if (veraOrb) veraOrb.classList.remove('vera-speaking');
+        const label = document.getElementById('vera-status-label');
+        if (label) label.textContent = 'Your TwoWords Guide · Always here';
+      }, 300);
     };
 
     veraSynth.speak(utterance);
@@ -8827,11 +8947,11 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
     // Hook app events after a short delay (ensure app is loaded)
     setTimeout(hookAppEvents, 2000);
 
-    // First nudge after 5 seconds
+    // Welcome tip after short delay without audio interrupt
     setTimeout(() => {
       const ctx = getVeraContext();
-      veraNudge('Ready to explore ' + ctx.word1 + ' ' + ctx.word2 + '? Tap me anytime!');
-    }, 5000);
+      console.log('[VERA] Ready with ambition:', ctx.word1, ctx.word2);
+    }, 3000);
 
     console.log('[VERA] AI Guide initialized. Session:', veraSessionId);
   }
