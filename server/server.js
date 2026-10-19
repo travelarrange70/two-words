@@ -27,6 +27,7 @@ try {
 
 // ── VERA AI Agent Service ─────────────────────────────────────────────────────
 const aiAgent = require('./services/aiAgentService');
+const wordEngine = require('./services/wordEngineService');
 
 // ── Self-Signed TLS Cert (enables camera/GPS on mobile over LAN) ─────────────
 async function getOrGenerateCerts() {
@@ -700,6 +701,82 @@ app.post('/api/ai/set-key', (req, res) => {
 app.delete('/api/ai/session/:sessionId', (req, res) => {
   aiAgent.clearHistory(req.params.sessionId);
   res.json({ success: true, message: 'Session cleared' });
+});
+
+// ============================================================
+// 14. TWO WORDS INTERACTION & STATE MATRIX API ENDPOINTS
+// ============================================================
+// POST /api/world/generate  — Landing / Initialization Page (/init)
+app.post('/api/world/generate', (req, res) => {
+  const { word1, word2, densityMultiplier, densityMode, latitude, longitude } = req.body;
+  const result = wordEngine.generateWorld({
+    word1: word1 || database.currentCalibration.ambition.split(' ')[0] || 'PLAY',
+    word2: word2 || database.currentCalibration.ambition.split(' ')[1] || 'GOLF',
+    densityMultiplier: Number(densityMultiplier) || 1.0,
+    densityMode: densityMode || 'Balanced (Suburban)',
+    lat: Number(latitude) || database.currentCalibration.latitude,
+    lon: Number(longitude) || database.currentCalibration.longitude
+  });
+
+  // Update server active ambition & calibration
+  database.currentCalibration.ambition = `${result.world.word1} ${result.world.word2}`;
+  broadcastToAll({
+    type: 'WORLD_GENERATED',
+    world: result.world,
+    config: result.config
+  });
+
+  res.json(result);
+});
+
+// GET /api/world/codex  — Active Map View (/world) HUD Menu
+app.get('/api/world/codex', (req, res) => {
+  res.json({
+    success: true,
+    words: `${wordEngine.worldDatabase.activeWorld.word1} · ${wordEngine.worldDatabase.activeWorld.word2}`,
+    theme: wordEngine.worldDatabase.activeWorld.theme,
+    codex: wordEngine.worldDatabase.activeWorld.codex,
+    stats: wordEngine.worldDatabase.playerStats
+  });
+});
+
+// POST /api/world/node-action  — Contextual POI Choice Dropdown (/world)
+app.post('/api/world/node-action', (req, res) => {
+  const { nodeId, choiceId, playerId } = req.body;
+  if (!nodeId || !choiceId) {
+    return res.status(400).json({ success: false, error: 'nodeId and choiceId are required' });
+  }
+
+  const outcome = wordEngine.handleNodeAction({ nodeId, choiceId, playerId: playerId || 'Player_1' });
+  
+  // Broadcast node event so visual path and inventory update across all clients
+  broadcastToAll({
+    type: 'NODE_ACTION_RESOLVED',
+    outcome
+  });
+
+  res.json(outcome);
+});
+
+// GET /api/dashboard/feed  — System & Logs Dashboard (/dashboard)
+app.get('/api/dashboard/feed', (req, res) => {
+  const feedType = req.query.feed || 'live_map';
+  const logsData = wordEngine.getLogs(feedType);
+  res.json({
+    ...logsData,
+    databaseSnapshot: {
+      activePlayers: database.players.size,
+      totalPois: database.pois.length,
+      currentCalibration: database.currentCalibration,
+      worldState: {
+        activeWords: `${wordEngine.worldDatabase.activeWorld.word1} ${wordEngine.worldDatabase.activeWorld.word2}`,
+        densityMode: wordEngine.worldDatabase.config.densityMode,
+        densityMultiplier: wordEngine.worldDatabase.config.densityMultiplier,
+        inventoryCount: wordEngine.worldDatabase.playerInventory.length,
+        nodesCount: wordEngine.worldDatabase.activeWorld.nodes.length
+      }
+    }
+  });
 });
 
 // Real-Time WebSocket Server

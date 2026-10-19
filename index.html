@@ -952,6 +952,192 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
   font-size: 0.7rem; font-weight: 800; flex-shrink: 0; margin-top: 1px;
 }
 
+
+/* ============================================================
+   🗺️ TWOWORDS: COMPLETE INTERACTION & STATE MATRIX STYLES
+   ============================================================ */
+
+/* 1. Landing / Initialization Page (/init) Additions */
+.density-select-wrapper {
+  width: 100%; display: flex; flex-direction: column; gap: 6px;
+  margin-top: 4px; text-align: left;
+}
+.density-label {
+  font-size: 0.75rem; font-weight: 800; color: #a0aec0;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.density-dropdown {
+  width: 100%; background: rgba(14, 18, 28, 0.95);
+  border: 1.5px solid rgba(0, 229, 255, 0.35); border-radius: 14px;
+  padding: 12px 14px; color: #fff; font-size: 0.92rem; font-weight: 700;
+  outline: none; cursor: pointer; transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.density-dropdown:focus, .density-dropdown:hover {
+  border-color: #00e5ff; box-shadow: 0 0 18px rgba(0,229,255,0.3);
+}
+
+.immerse-btn {
+  width: 100%; background: linear-gradient(135deg, #00d4ff, #7928ca, #ff007f);
+  background-size: 200% 200%; animation: immerse-shimmer 3s ease infinite;
+  border: none; padding: 16px 20px; border-radius: 16px;
+  color: #fff; font-weight: 900; font-size: 1.12rem; letter-spacing: 1.5px;
+  text-transform: uppercase; cursor: pointer;
+  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.45);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 6px;
+}
+.immerse-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 36px rgba(0, 212, 255, 0.65);
+}
+@keyframes immerse-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 2. Main HUD Hamburger Menu (Top Left) */
+#hud-hamburger-btn {
+  position: absolute; top: 16px; left: 16px; z-index: 10001;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(10, 12, 22, 0.92); backdrop-filter: blur(18px);
+  border: 1.5px solid rgba(0, 229, 255, 0.4);
+  color: #fff; font-size: 1.2rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  transition: all 0.2s ease;
+}
+#hud-hamburger-btn:hover {
+  border-color: #00e5ff; transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
+}
+
+#hud-drawer-menu {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 300px; max-width: 85vw;
+  background: rgba(10, 14, 24, 0.98); backdrop-filter: blur(28px);
+  border-right: 1.5px solid rgba(0, 229, 255, 0.3);
+  z-index: 99999; padding: 24px 20px;
+  display: flex; flex-direction: column; gap: 16px;
+  transform: translateX(-105%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 20px 0 60px rgba(0,0,0,0.85);
+}
+#hud-drawer-menu.open { transform: translateX(0); }
+
+.hud-drawer-header {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;
+}
+.hud-drawer-title {
+  font-size: 1.15rem; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 8px;
+}
+.hud-drawer-item {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px;
+  color: #fff; font-weight: 800; font-size: 0.9rem; cursor: pointer;
+  transition: all 0.2s ease;
+}
+.hud-drawer-item:hover {
+  background: rgba(0,229,255,0.12); border-color: rgba(0,229,255,0.4);
+  transform: translateX(4px);
+}
+.hud-drawer-item .item-icon { font-size: 1.3rem; }
+
+/* World Codex Overlay */
+#world-codex-overlay {
+  position: fixed; inset: 0; z-index: 100000;
+  background: rgba(3, 4, 10, 0.96); backdrop-filter: blur(28px);
+  display: none; align-items: center; justify-content: center; padding: 16px;
+}
+#world-codex-overlay.active { display: flex; }
+
+.codex-card {
+  background: rgba(14, 18, 30, 0.98); border: 1.5px solid rgba(0, 229, 255, 0.35);
+  border-radius: 26px; width: 100%; max-width: 520px; max-height: 85vh;
+  padding: 24px; color: #fff; box-shadow: 0 24px 70px rgba(0,0,0,0.9);
+  display: flex; flex-direction: column; gap: 16px; overflow: hidden;
+}
+.codex-grid {
+  overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px;
+}
+.codex-item {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 12px 16px; display: flex; flex-direction: column; gap: 4px;
+  transition: all 0.2s ease;
+}
+.codex-item.discovered {
+  border-color: rgba(0,255,153,0.3); background: rgba(0,255,153,0.03);
+}
+.codex-item.locked { opacity: 0.55; }
+.codex-term-row { display: flex; justify-content: space-between; align-items: center; }
+.codex-term { font-size: 0.95rem; font-weight: 900; color: #00e5ff; }
+.codex-cat {
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
+  background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 8px; color: #a0aec0;
+}
+.codex-def { font-size: 0.8rem; color: #e2e8f0; line-height: 1.35; }
+.codex-lore { font-size: 0.72rem; color: #94a3b8; font-style: italic; }
+
+/* 3. Contextual Interaction Box: POI Choice Dropdown */
+#poi-choice-box {
+  position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%) translateY(20px);
+  width: 90%; max-width: 440px; z-index: 10002;
+  background: rgba(12, 16, 28, 0.97); backdrop-filter: blur(24px);
+  border: 1.5px solid #00e5ff; border-radius: 22px; padding: 16px 18px;
+  color: #fff; box-shadow: 0 16px 45px rgba(0,0,0,0.85), 0 0 30px rgba(0,229,255,0.25);
+  display: none; flex-direction: column; gap: 12px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#poi-choice-box.show {
+  display: flex; transform: translateX(-50%) translateY(0);
+}
+.poi-choice-header { display: flex; justify-content: space-between; align-items: center; }
+.poi-choice-badge {
+  background: rgba(0,229,255,0.15); border: 1px solid rgba(0,229,255,0.4);
+  color: #00e5ff; font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px;
+}
+.poi-choice-title { font-size: 1.05rem; font-weight: 900; color: #fff; }
+.poi-choice-select {
+  width: 100%; background: rgba(0, 0, 0, 0.6);
+  border: 1.5px solid rgba(0, 229, 255, 0.4); border-radius: 12px;
+  padding: 10px 14px; color: #fff; font-size: 0.88rem; font-weight: 800;
+  outline: none; cursor: pointer;
+}
+.poi-choice-btn {
+  background: linear-gradient(135deg, #00e5ff, #1a73e8); border: none;
+  color: #fff; font-weight: 900; font-size: 0.88rem; padding: 10px; border-radius: 12px;
+  cursor: pointer; transition: transform 0.15s ease;
+}
+.poi-choice-btn:hover { transform: scale(1.02); }
+
+/* 4. System & Logs Dashboard (/dashboard) */
+#dashboard-modal {
+  position: fixed; inset: 0; z-index: 100000;
+  background: rgba(2, 4, 8, 0.95); backdrop-filter: blur(28px);
+  display: none; align-items: center; justify-content: center; padding: 16px;
+}
+#dashboard-modal.active { display: flex; }
+.dash-card {
+  background: rgba(10, 14, 24, 0.98); border: 1.5px solid rgba(0, 229, 255, 0.35);
+  border-radius: 26px; width: 100%; max-width: 580px; max-height: 88vh;
+  padding: 24px; color: #fff; box-shadow: 0 24px 70px rgba(0,0,0,0.9);
+  display: flex; flex-direction: column; gap: 14px; overflow: hidden;
+}
+.dash-terminal {
+  flex: 1; min-height: 240px; max-height: 360px;
+  background: #02040a; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; padding: 14px; overflow-y: auto;
+  font-family: 'SF Mono', 'Courier New', monospace; font-size: 0.75rem;
+  line-height: 1.5; color: #38bdf8;
+}
+.dash-terminal::-webkit-scrollbar { width: 5px; }
+.dash-terminal::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.3); border-radius: 4px; }
+.dash-log-row { margin-bottom: 6px; word-break: break-all; }
+.dash-log-time { color: #64748b; margin-right: 6px; }
+.dash-log-feed { color: #a855f7; font-weight: 700; margin-right: 6px; }
+
 </style>
 </head>
 <body>
@@ -1009,7 +1195,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
       <span id="fit-pace-val">0.0 km/h</span>
     </div>
     <div id="home-map"><div id="leaflet-map"></div></div>
-    <div class="map-loc-chip">
+    <!-- Main HUD Hamburger Menu (Top Left) -->
+    <button id="hud-hamburger-btn" onclick="toggleHudDrawer()" title="Open TwoWords Menu">☰</button>
+    
+    <div class="map-loc-chip" style="margin-left: 56px;">
       <div class="loc-dot"></div>
       <span id="map-city-label">Locating City...</span>
     </div>
@@ -1481,8 +1670,22 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
           <span class="tw-chip" onclick="quickFillAmbition('BEACH', 'VIBES')" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:5px 11px; font-size:0.75rem; font-weight:700; color:#e0e7ff; cursor:pointer;">🌴 BEACH VIBES</span>
           <span class="tw-chip" onclick="quickFillAmbition('NIGHT', 'WALK')" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:5px 11px; font-size:0.75rem; font-weight:700; color:#e0e7ff; cursor:pointer;">🚶 NIGHT WALK</span>
         </div>
+        <!-- World Density Mode Dropdown (Blueprint Matrix) -->
+        <div class="density-select-wrapper">
+          <label class="density-label">World Density Mode</label>
+          <select id="world-density-select" class="density-dropdown" onchange="OnDensitySelectionChanged(this.value)">
+            <option value="Balanced (Suburban)" selected>Balanced (Suburban) · 1.0x Density</option>
+            <option value="Sparse (Rural)">Sparse (Rural) · 0.5x Density</option>
+            <option value="Dense (Urban)">Dense (Urban) · 2.0x Density</option>
+          </select>
+        </div>
+
         <div id="tw-loading-dots" style="display:none; color:#00e5ff; font-size:1.5rem; letter-spacing:6px;">···</div>
-        <button id="tw-go-btn" type="submit" style="width:100%; background:linear-gradient(135deg,#00d4ff,#a855f7); border:none; padding:16px; border-radius:16px; color:#fff; font-weight:900; font-size:1.1rem; cursor:pointer; box-shadow:0 6px 24px rgba(0,212,255,0.4); margin-top:4px;">Find My Matches →</button>
+        
+        <!-- Action Button: [ IMMERSE ME ] -->
+        <button id="tw-immerse-btn" type="button" onclick="OnClick_GenerateWorld()" class="immerse-btn">
+          <span>⚡</span> <span>IMMERSE ME</span> <span>➔</span>
+        </button>
       </form>
     </div>
   </div>
@@ -1494,6 +1697,133 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
   <!-- ====================================================
        📜 DAILY QUESTS & CHALLENGES MODAL
        ==================================================== -->
+  
+  <!-- ====================================================
+       ☰ MAIN HUD HAMBURGER MENU DRAWER (/world)
+       ==================================================== -->
+  <div id="hud-drawer-menu">
+    <div class="hud-drawer-header">
+      <div class="hud-drawer-title"><span>🗺️</span> TwoWords Menu</div>
+      <button onclick="toggleHudDrawer()" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:30px; height:30px; border-radius:50%; cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Option 1: [ View World Codex ] -->
+    <div class="hud-drawer-item" onclick="toggleHudDrawer(); OpenOverlay('codex');">
+      <span class="item-icon">📖</span>
+      <div>
+        <div>View World Codex</div>
+        <div style="font-size:0.7rem; color:#a0aec0; font-weight:normal;">Active generated dictionary</div>
+      </div>
+    </div>
+
+    <!-- Option 2: [ Recalibrate Coordinates ] -->
+    <div class="hud-drawer-item" onclick="toggleHudDrawer(); GPS_RefreshLocation();">
+      <span class="item-icon">🎯</span>
+      <div>
+        <div>Recalibrate Coordinates</div>
+        <div style="font-size:0.7rem; color:#a0aec0; font-weight:normal;">Snap map to physical GPS</div>
+      </div>
+    </div>
+
+    <!-- Option 3: [ System & Logs Dashboard ] -->
+    <div class="hud-drawer-item" onclick="toggleHudDrawer(); OpenOverlay('dashboard');">
+      <span class="item-icon">📊</span>
+      <div>
+        <div>System & Logs Dashboard</div>
+        <div style="font-size:0.7rem; color:#a0aec0; font-weight:normal;">Streaming feeds & DB state</div>
+      </div>
+    </div>
+
+    <!-- Option 4: [ Reset / New Two Words ] -->
+    <div class="hud-drawer-item" onclick="toggleHudDrawer(); returnToInitScreen();">
+      <span class="item-icon">🔄</span>
+      <div>
+        <div>Change Two Words</div>
+        <div style="font-size:0.7rem; color:#a0aec0; font-weight:normal;">Re-seed procedural engine</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       📖 WORLD CODEX OVERLAY (/world)
+       ==================================================== -->
+  <div id="world-codex-overlay">
+    <div class="codex-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+        <div>
+          <div style="font-size:1.2rem; font-weight:900; color:#fff; display:flex; align-items:center; gap:8px;">
+            <span>📖</span> World Codex: <span id="codex-words-label" style="color:#00e5ff;">PLAY · GOLF</span>
+          </div>
+          <div style="font-size:0.72rem; color:#a0aec0;" id="codex-stats-label">Procedurally parsed terminology dictionary</div>
+        </div>
+        <button onclick="CloseOverlay('codex')" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
+      </div>
+
+      <div class="codex-grid" id="codex-items-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       📍 CONTEXTUAL POI CHOICE BOX (Path Decision Junctions)
+       ==================================================== -->
+  <div id="poi-choice-box">
+    <div class="poi-choice-header">
+      <span class="poi-choice-badge">📍 Path Decision Node</span>
+      <button onclick="dismissPoiChoiceBox()" style="background:none; border:none; color:#a0aec0; cursor:pointer; font-size:14px;">✕</button>
+    </div>
+    <div>
+      <div class="poi-choice-title" id="poi-choice-node-name">Broadway Junction Node</div>
+      <div style="font-size:0.75rem; color:#a0aec0; margin-top:2px;">You reached a spatial map junction. Choose your path action:</div>
+    </div>
+
+    <!-- POI Choice Dropdown -->
+    <select id="poi-node-action-select" class="poi-choice-select">
+      <option value="investigate">🔍 Investigate Pathway (Discovery Loot & Codex Entry)</option>
+      <option value="camp">⛺ Establish Camp (Anchor Tactical Waypoint)</option>
+      <option value="avoid">↩️ Avoid Node (Stealth Route Divert)</option>
+    </select>
+
+    <button type="button" class="poi-choice-btn" onclick="executeSelectedNodeAction()">
+      Confirm Node Action ➔
+    </button>
+  </div>
+
+  <!-- ====================================================
+       📊 SYSTEM & LOGS DASHBOARD (/dashboard)
+       ==================================================== -->
+  <div id="dashboard-modal">
+    <div class="dash-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+        <div style="font-size:1.15rem; font-weight:900; color:#fff; display:flex; align-items:center; gap:8px;">
+          <span>📊</span> System & Logs Dashboard (/dashboard)
+        </div>
+        <button onclick="CloseOverlay('dashboard')" style="background:rgba(255,255,255,0.08); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
+      </div>
+
+      <!-- Data Feed Selector Dropdown (Blueprint Matrix) -->
+      <div style="display:flex; gap:10px; align-items:center;">
+        <label style="font-size:0.75rem; font-weight:800; color:#a0aec0; text-transform:uppercase; white-space:nowrap;">Data Feed:</label>
+        <select id="data-feed-selector" class="density-dropdown" style="padding:8px 12px; font-size:0.85rem;" onchange="OnFeedSelectorChange(this.value)">
+          <option value="Live Map Logs" selected>Live Map Logs</option>
+          <option value="WordEngine Output">WordEngine Output</option>
+          <option value="Database State">Database State</option>
+        </select>
+      </div>
+
+      <!-- Live Terminal Console -->
+      <div class="dash-terminal" id="dash-terminal-console">
+        <div class="dash-log-row"><span class="dash-log-time">[BOOT]</span> <span class="dash-log-feed">[System]</span> Terminal initialized. Streaming logs...</div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#64748b;">
+        <span id="dash-log-count">Piped entries: 0</span>
+        <button onclick="refreshDashboardFeed()" style="background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3); color:#00e5ff; border-radius:8px; padding:4px 10px; cursor:pointer;">↻ Refresh</button>
+      </div>
+    </div>
+  </div>
+
   <div id="quests-modal">
     <div class="game-modal-card">
       <div class="game-modal-header">

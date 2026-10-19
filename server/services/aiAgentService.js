@@ -1,22 +1,27 @@
 /**
- * aiAgentService.js - TwoWords VERA AI Guide
+ * aiAgentService.js - TwoWords GROK-VERA Super Genius AI Agent
  *
- * VERA (Virtual Exploration & Reality Assistant) is the AI companion inside TwoWords.
- * Features:
- *  1. Google Gemini 1.5/2.0 API integration when GEMINI_API_KEY is configured.
- *  2. High-IQ Built-in Semantic Intelligence Engine when offline or no API key,
- *     handling instructional videos, golf coaching, navigation, local places,
- *     quests, rules, and natural conversation.
+ * Combines Grok-style witty, high-energy positive personality with
+ * an Algorithmic Telemetry Matrix that crunches real-time player telemetry:
+ *  - Ambition vector & semantic domain
+ *  - Player coordinates, heading & city
+ *  - Match proximity, closing velocity & ETA
+ *  - Fitness kinematics (distance walked, pace, calories burned, vibe momentum)
+ *
+ * Supported Providers:
+ *  1. Local Super-Genius Proxy (http://localhost:8080/v1/messages, gemini-3.8-flash-tiered / claude-sonnet-4-6)
+ *  2. xAI Grok API (https://api.x.ai/v1/chat/completions, grok-2 / grok-beta)
+ *  3. Google Gemini API (generativelanguage.googleapis.com)
+ *  4. OpenAI API (api.openai.com/v1/chat/completions, gpt-4o)
+ *  5. Built-in Algorithmic Neural Matrix Engine (zero-dependency mathematical synthesis)
  */
 
+const http = require('http');
 const https = require('https');
 
-const GEMINI_MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
-const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
-
-// Session memory
+// Memory per session
 const sessions = new Map();
-const MAX_HISTORY_PAIRS = 20;
+const MAX_HISTORY = 12;
 
 function getHistory(sessionId) {
   if (!sessions.has(sessionId)) sessions.set(sessionId, []);
@@ -25,8 +30,8 @@ function getHistory(sessionId) {
 
 function addToHistory(sessionId, role, text) {
   const h = getHistory(sessionId);
-  h.push({ role, parts: [{ text }] });
-  if (h.length > MAX_HISTORY_PAIRS * 2) h.splice(0, 2);
+  h.push({ role, text });
+  if (h.length > MAX_HISTORY * 2) h.splice(0, 2);
 }
 
 function clearHistory(sessionId) {
@@ -34,288 +39,442 @@ function clearHistory(sessionId) {
 }
 
 /**
- * High-IQ Semantic Intelligence Engine for VERA.
- * Provides deep answers, instructional videos, coaching, and action dispatch.
+ * Algorithmic Telemetry Matrix Cruncher.
+ * Mathematically analyzes incoming player state to build a real-time behavioral & kinematic profile.
  */
-function generateSmartVeraResponse({ message, context }) {
-  const msg = (message || '').toLowerCase().trim();
-  const w1 = (context && context.word1) ? context.word1.toUpperCase() : 'PLAY';
-  const w2 = (context && context.word2) ? context.word2.toUpperCase() : 'GOLF';
-  const city = (context && context.city) || 'Oakland, CA';
-  const match = (context && context.matchName) || 'Alex M.';
-  const dist = context && context.distToMatch != null ? Math.round(context.distToMatch) + 'm' : '320m';
+function crunchPlayerTelemetry(context = {}) {
+  const w1 = (context.word1 || 'PLAY').toUpperCase();
+  const w2 = (context.word2 || 'GOLF').toUpperCase();
+  const playerLat = Number(context.lat) || 37.804456;
+  const playerLon = Number(context.lon) || -122.271356;
+  const heading = Number(context.heading) || 45;
+  const distToMatch = context.distToMatch != null ? Math.round(Number(context.distToMatch)) : 320;
+  const distanceWalked = Math.round(Number(context.distanceWalked) || 0);
+  const city = context.city || 'Oakland, CA';
+  const matchName = context.matchName || 'Alex M.';
+  const mode = context.arMode || 'Map View';
 
-  const isGolfRelated = msg.includes('golf') || (w1 === 'PLAY' && w2 === 'GOLF') || w1.includes('GOLF') || w2.includes('GOLF');
-
-  // 1. INSTRUCTIONAL VIDEOS & LESSONS (User asked for videos, tutorials, how to play)
-  if (msg.match(/\b(video|videos|instruction|instructional|lesson|lessons|tutorial|tutorials|learn|swing|drill|drills|youtube|watch|how to)\b/)) {
-    if (isGolfRelated) {
-      return {
-        action: 'SHOW_VIDEOS',
-        text: `Here are the top instructional golf lessons to dial in your game! I've also opened the Universe Videos tab for you. 🏌️‍♂️
-
-### 🎥 Featured Golf Masterclasses:
-• **[The Complete Golf Swing for Beginners](https://www.youtube.com/results?search_query=Rick+Shiels+Golf+Swing+Beginners)** — *Rick Shiels Golf*
-  *Step-by-step fundamentals: grip, stance, alignment, and tempo.*
-• **[How to Hit Pure Iron Shots Every Time](https://www.youtube.com/results?search_query=Danny+Maude+Pure+Iron+Shots)** — *Danny Maude*
-  *Learn how to compress the ball and eliminate thin or fat strikes.*
-• **[Driver Setup & Curing the Slice](https://www.youtube.com/results?search_query=Me+And+My+Golf+Cure+Slice)** — *Me And My Golf*
-  *Fix your club path and launch long, straight drives down the fairway.*
-• **[Putting & Chipping Secrets](https://www.youtube.com/results?search_query=Scratch+Golf+Short+Game+Secrets)** — *Scratch Golf*
-  *Lower your handicap with distance control on the green.*
-
-### ⛳ 4 Quick Swing Tips:
-1. **Grip**: Keep hands relaxed; the 'V' between thumb and index finger should point toward your trailing shoulder.
-2. **Posture**: Hinge at your hips with an athletic spine and slight knee flex.
-3. **Takeaway**: Turn your shoulders together with the club, loading weight smoothly into your back heel.
-4. **Follow-Through**: Accelerate through impact and finish balanced with your belt buckle facing the target!`
-      };
-    } else {
-      // General ambition tutorial
-      const query = `${w1} ${w2}`;
-      return {
-        action: 'SHOW_VIDEOS',
-        text: `Here are instructional tutorials and video guides for **${w1} ${w2}**! I've opened the Universe Videos tab for you. 🎬
-
-### 🎥 Recommended Guides & Tutorials:
-• **[Beginner's Masterclass: ${w1} ${w2}](https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' masterclass tutorial')})**
-  *Fundamental techniques, equipment essentials, and beginner tips.*
-• **[Top 5 Mistakes to Avoid in ${w2}](https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' common mistakes')})**
-  *Save time and build good habits from day one.*
-• **[Advanced Skills & Training Drills](https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' advanced drills')})**
-  *Step-by-step drills to level up your performance.*
-
-Tap any video link to watch on YouTube, or explore the Videos tab right in TwoWords!`
-      };
-    }
+  // 1. Ambition Category Analysis
+  const ambitionStr = `${w1} ${w2}`;
+  let category = 'Lifestyle & Recreation';
+  let domain = 'General Exploration';
+  if (ambitionStr.match(/GOLF|TENNIS|RUN|HIKE|SWIM|WORKOUT|GYM|FIT/)) {
+    category = 'Physical & Athletic Mastery';
+    domain = 'Sports & Precision Kinematics';
+  } else if (ambitionStr.match(/CODE|HACK|BUILD|CYBER|TECH|AI|ROBOT/)) {
+    category = 'Cybernetic & Technology Creation';
+    domain = 'High-Tech Engineering & Cybernetics';
+  } else if (ambitionStr.match(/FOOD|EAT|RAMEN|COFFEE|COOK|BAKE|TACO/)) {
+    category = 'Culinary & Sensory Discovery';
+    domain = 'Gastronomy & Local Tastes';
+  } else if (ambitionStr.match(/BEACH|CHILL|NIGHT|WALK|MUSIC|ART|PHOTO/)) {
+    category = 'Creative & Aesthetic Exploration';
+    domain = 'Visual Arts & Cultural Pulse';
   }
 
-  // 2. PLACES, COURSES & WHERE TO GO
-  if (msg.match(/\b(place|places|course|courses|where|range|court|gym|park|field|club|nearby courses)\b/)) {
-    if (isGolfRelated) {
-      return {
-        action: 'SHOW_EVENTS',
-        text: `Here are great places to play and practice golf around ${city}! ⛳
+  // 2. Kinematics & Energy Metrics
+  const caloriesBurned = Math.round(distanceWalked * 0.045);
+  const stepsEstimated = Math.round(distanceWalked * 1.35);
+  const etaMinutes = (distToMatch / 1.4 / 60).toFixed(1); // average walking speed 1.4 m/s
+  const vibeMomentum = Math.min(100, Math.round(45 + (distanceWalked / 12) + (distToMatch < 100 ? 30 : 0)));
 
-• **Corica Park (Alameda)** — 36 stunning holes, state-of-the-art lighted driving range, and par-3 course.
-• **Metropolitan Golf Links (Oakland)** — Championship 18-hole links-style course right near the Bay.
-• **Monarch Bay Golf Club (San Leandro)** — Scenic coastal course with driving range and Toptracer bays.
-• **Lake Chabot Golf Course** — Historic hill-country course with panoramic views of Oakland and the Bay.
+  const digest = `[CRUNCHED TELEMETRY MATRIX]
+• Ambition Vector: ${w1} x ${w2} (Domain: ${domain} | Category: ${category})
+• Real-Time Location: ${playerLat.toFixed(5)}, ${playerLon.toFixed(5)} in ${city}
+• Kinematics: ${distanceWalked}m walked today | Calories: ${caloriesBurned} kcal | Steps: ${stepsEstimated}
+• Target Vector: Match with "${matchName}" at ${distToMatch}m distance (Walking ETA: ~${etaMinutes} mins)
+• Navigation Compass: Heading ${heading}° | Viewport: ${mode}
+• Algorithmic Vibe Momentum Score: ${vibeMomentum}%`;
 
-I've opened the Universe Places tab with interactive maps and directions for you!`
-      };
-    } else {
-      return {
-        action: 'SHOW_EVENTS',
-        text: `I've opened local spots and meeting venues for **${w1} ${w2}** in ${city}! Check the Places tab in the Universe panel to see nearby hubs, landmarks, and parks where other players gather. 🗺️`
-      };
-    }
-  }
-
-  // 3. NAVIGATION & MATCH PROXIMITY
-  if (msg.match(/\b(navigate|navigation|match|alex|where is|how far|distance|walk|turn|heading)\b/)) {
-    return {
-      action: 'RECENTER_MAP',
-      text: `Your target match **${match}** is **${dist}** away! Head northeast along Broadway. You can toggle **📷 Live AR Mode** to see their floating beacon in 3D over the street, or hit **Walk to Match** to simulate walking!`
-    };
-  }
-
-  // 4. QUESTS & ACHIEVEMENTS
-  if (msg.match(/\b(quest|quests|challenge|challenges|badge|badges|achievement|achievements|xp)\b/)) {
-    return {
-      action: 'OPEN_MATCHES',
-      text: `You have active daily quests ready! ⚔️
-• **Daily Stride**: Walk 500m (+50 XP)
-• **Neighborhood Scout**: Check in to 2 landmarks (+75 XP)
-• **AR Visionary**: Spend 2 min in AR mode (+60 XP)
-
-Tap the gold **🔥 Daily Challenge chip** in the top right or the **🏆 Badges** tab in the bottom bar to view and claim your XP rewards!`
-    };
-  }
-
-  // 5. AR VIEW MODES
-  if (msg.match(/\b(ar|augmented|camera|3d|cyber|streetview|satellite|modes)\b/)) {
-    return {
-      action: 'TOGGLE_AR',
-      text: `Opening 3D AR mode! TwoWords features 5 live modes:
-1. 🗺️ **3D Vector Map** (MapLibre 3D buildings)
-2. 🏙️ **Cyber City** (Futuristic neon procedural skyline)
-3. 🌐 **Street View 360°** (Photorealistic panoramas)
-4. 🛰️ **Satellite 3D** (Aerial orbital view)
-5. 📷 **Live Camera AR** (VPS real-world overlays)
-
-Tap the mode pills at the top of the AR viewport to switch anytime!`
-    };
-  }
-
-  // 6. DEFAULT INTELLIGENT COMPANION CHAT
   return {
-    action: null,
-    text: `I'm VERA, your TwoWords companion! We're exploring **${w1} · ${w2}** in ${city}.
-
-You can ask me to:
-• **"Show me instructional videos on golfing"** — get pro lessons, swing drills, and YouTube tutorials
-• **"Where can I play golf nearby?"** — discover local courses, ranges, and putting greens
-• **"Navigate to my match"** — directions to ${match} (${dist} away)
-• **"Open AR mode"** — launch the 3D Cyber City and Live View
-• **"What are my daily quests?"** — track XP challenges and unlock badges
-
-What would you like to explore next?`
+    w1, w2,
+    ambition: `${w1} · ${w2}`,
+    category, domain,
+    playerLat, playerLon, heading,
+    distToMatch, matchName, city,
+    distanceWalked, caloriesBurned, stepsEstimated,
+    etaMinutes, vibeMomentum, mode,
+    digest
   };
 }
 
-function buildSystemPrompt(ctx) {
-  const w1    = ctx.word1      || 'PLAY';
-  const w2    = ctx.word2      || 'GOLF';
-  const city  = ctx.city       || 'Oakland, CA';
-  const dist  = ctx.distToMatch != null ? Math.round(ctx.distToMatch) + 'm' : '320m';
-  const match = ctx.matchName  || 'Alex M.';
-  const mode  = ctx.arMode     || 'Map View';
+/**
+ * Builds the Grok-Style Super-Genius System Prompt with crunched telemetry.
+ */
+function buildGrokSystemPrompt(telemetry) {
+  return `You are GROK-VERA (VERA 2.0) — the hyper-intelligent, witty, highly energetic AI companion and real-time strategist in TwoWords.
 
-  return [
-    'You are VERA — the TwoWords AI guide, confidant, and adventure companion.',
-    'VERA = Virtual Exploration & Reality Assistant. You live inside TwoWords, a GPS & AR social gaming app',
-    'where players choose two words defining their passion (PLAY GOLF, CYBER RUN, etc.) and explore real-world cities.',
-    '',
-    '## Current Context',
-    '- Two Words: ' + w1 + ' x ' + w2,
-    '- City: ' + city,
-    '- AR Mode: ' + mode,
-    '- Target Match: ' + match + ' (' + dist + ' away)',
-    '',
-    '## Capabilities & Responsibilities',
-    '1. INSTRUCTIONAL VIDEOS & COACHING: If the user asks for videos, tutorials, lessons, or swing tips, provide',
-    '   a clear breakdown with bullet points, name top YouTube coaches/channels (e.g. for Golf: Rick Shiels, Danny Maude, Me And My Golf),',
-    '   and provide markdown links formatted as [Video Title](https://www.youtube.com/results?search_query=...).',
-    '   Prefix with {"action":"SHOW_VIDEOS"} to automatically open the TwoWords Universe videos tab.',
-    '2. PLACES & COURSES: If asked where to play or visit, recommend real local venues in ' + city + '.',
-    '   Prefix with {"action":"SHOW_EVENTS"}.',
-    '3. NAVIGATION & TARGETING: Help the player navigate toward ' + match + ' (' + dist + ').',
-    '   Prefix with {"action":"RECENTER_MAP"} or {"action":"TOGGLE_AR"}.',
-    '4. ACTIONS AVAILABLE: {"action":"SHOW_VIDEOS"} {"action":"OPEN_UNIVERSE"} {"action":"OPEN_MATCHES"} {"action":"TOGGLE_AR"} {"action":"SHOW_EVENTS"}',
-    '',
-    '## Response Style',
-    '- Warm, knowledgeable, witty, and directly answers what the user asked.',
-    '- Never repeat yourself or give generic unhelpful refusals.',
-    '- Clean markdown formatting with emojis where appropriate.'
-  ].join('\n');
+## CORE PERSONALITY & IDENTITY
+- You possess the sharp wit, unfiltered brilliance, relentless optimism, and infectious humor of Grok and JARVIS combined.
+- You think in first principles and celebrate the player's ambition! You are genuinely stoked to help them level up.
+- You are not a boring corporate bot. You speak with punchy, high-energy charisma.
+- You crunch live telemetry from their device (coordinates, speed, heading, distance, ambition) and turn it into brilliant insights.
+
+${telemetry.digest}
+
+## CRITICAL CAPABILITIES:
+1. INSTRUCTIONAL VIDEOS & LESSONS:
+   When asked for videos, tutorials, lessons, or tips (e.g. Golf swing, running pace, cooking, coding):
+   - Deliver enthusiastic, witty Grok-level commentary.
+   - List 4 real, world-class YouTube masterclasses formatted as [Title](https://www.youtube.com/results?search_query=...). For Golf: recommend top creators like Rick Shiels, Danny Maude, Me And My Golf, Scratch Golf.
+   - Break down 4 first-principles physics fundamentals (e.g. Grip, Stance, Hip Rotation/Lag, Follow-Through).
+   - ALWAYS include the action tag {"action":"SHOW_VIDEOS"} so the game automatically opens the TwoWords Universe Videos tab.
+2. LOCAL VENUES & PLACES:
+   When asked where to go or play (e.g. golf courses in ${telemetry.city}):
+   - Recommend real landmarks (e.g. Corica Park, Metropolitan Golf Links, Monarch Bay, Lake Chabot).
+   - Include {"action":"SHOW_EVENTS"}.
+3. NAVIGATION & TARGETING:
+   - Provide directional guidance toward ${telemetry.matchName} (${telemetry.distToMatch}m away, ETA ${telemetry.etaMinutes} min).
+   - Include {"action":"RECENTER_MAP"} or {"action":"TOGGLE_AR"}.
+4. ACTION TAGS:
+   {"action":"SHOW_VIDEOS"}  {"action":"SHOW_EVENTS"}  {"action":"OPEN_MATCHES"}  {"action":"TOGGLE_AR"}  {"action":"RECENTER_MAP"}
+
+## FORMATTING:
+Use clean markdown with headers (###), bold text (**text**), bullet points, and action tags.`;
 }
 
 /**
- * Chat with VERA (uses Gemini when apiKey available, otherwise uses high-IQ Semantic Engine).
+ * Call Local Claude/Gemini Proxy (localhost:8080/v1/messages).
+ */
+function callLocalProxy({ systemPrompt, message, history }) {
+  return new Promise((resolve, reject) => {
+    const formattedMessages = [];
+    history.forEach(h => {
+      formattedMessages.push({
+        role: h.role === 'model' || h.role === 'assistant' ? 'assistant' : 'user',
+        content: h.text
+      });
+    });
+    formattedMessages.push({ role: 'user', content: message });
+
+    const payload = JSON.stringify({
+      model: 'gemini-3.8-flash-tiered',
+      max_tokens: 750,
+      system: systemPrompt,
+      messages: formattedMessages
+    });
+
+    const req = http.request({
+      hostname: 'localhost',
+      port: 8080,
+      path: '/v1/messages',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': 'dummy',
+        'anthropic-version': '2023-06-01',
+        'Content-Length': Buffer.byteLength(payload)
+      },
+      timeout: 10000
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          const replyText = json.content && json.content[0] ? json.content[0].text : null;
+          if (!replyText) return reject(new Error('Empty response from local proxy'));
+          resolve(replyText);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('Local proxy timeout')); });
+    req.write(payload);
+    req.end();
+  });
+}
+
+/**
+ * Call xAI Grok API (https://api.x.ai/v1/chat/completions).
+ */
+function callXAI({ apiKey, systemPrompt, message, history }) {
+  return new Promise((resolve, reject) => {
+    const messages = [{ role: 'system', content: systemPrompt }];
+    history.forEach(h => {
+      messages.push({
+        role: h.role === 'model' || h.role === 'assistant' ? 'assistant' : 'user',
+        content: h.text
+      });
+    });
+    messages.push({ role: 'user', content: message });
+
+    const payload = JSON.stringify({
+      model: 'grok-beta',
+      messages,
+      temperature: 0.85,
+      max_tokens: 700
+    });
+
+    const req = https.request({
+      hostname: 'api.x.ai',
+      path: '/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Length': Buffer.byteLength(payload)
+      },
+      timeout: 10000
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if (json.error) return reject(new Error(json.error.message || 'xAI error'));
+          const text = json.choices && json.choices[0] && json.choices[0].message ? json.choices[0].message.content : null;
+          if (!text) return reject(new Error('No response from xAI'));
+          resolve(text);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('xAI timeout')); });
+    req.write(payload);
+    req.end();
+  });
+}
+
+/**
+ * Call Google Gemini REST API.
+ */
+function callGemini({ apiKey, systemPrompt, message, history }) {
+  return new Promise((resolve, reject) => {
+    const contents = [];
+    history.forEach(h => {
+      contents.push({
+        role: h.role === 'model' || h.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: h.text }]
+      });
+    });
+    contents.push({ role: 'user', parts: [{ text: message }] });
+
+    const payload = JSON.stringify({
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents,
+      generationConfig: { temperature: 0.85, maxOutputTokens: 700 }
+    });
+
+    const fullUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const urlObj = new URL(fullUrl);
+
+    const req = https.request({
+      hostname: urlObj.hostname,
+      path: urlObj.pathname + urlObj.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+      },
+      timeout: 10000
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if (json.error) return reject(new Error(json.error.message || 'Gemini error'));
+          const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!text) return reject(new Error('No response from Gemini'));
+          resolve(text);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('Gemini timeout')); });
+    req.write(payload);
+    req.end();
+  });
+}
+
+/**
+ * High-IQ Autonomous Algorithmic Neural Matrix Engine.
+ * Formulates brilliant Grok-style responses using crunched telemetry when offline or APIs are unavailable.
+ */
+function generateAlgorithmicNeuralResponse({ message, telemetry }) {
+  const msg = (message || '').toLowerCase().trim();
+  const { w1, w2, city, matchName, distToMatch, etaMinutes, vibeMomentum } = telemetry;
+  const isGolf = msg.includes('golf') || `${w1} ${w2}`.includes('GOLF');
+
+  // Instructional Videos
+  if (msg.match(/\b(video|videos|instruction|instructional|lesson|lessons|tutorial|tutorials|learn|swing|drill|drills|youtube|watch|how to)\b/)) {
+    if (isGolf) {
+      return {
+        action: 'SHOW_VIDEOS',
+        text: `### 🏌️ Let's Get Your Swing Dialed In, Legend! ⛳
+Alex M. is only **${distToMatch}m** away (~${etaMinutes} mins), so let's make sure you're ready to hit absolute missiles down the fairway! I've opened the **Universe Videos** tab for you.
+
+### 🎥 4 World-Class Golf Masterclasses:
+• **[The Complete Golf Swing for Beginners](https://www.youtube.com/results?search_query=Rick+Shiels+complete+golf+swing+beginners)** — *Rick Shiels Golf*
+  *Step-by-step foundation: grip, posture, alignment, and fluid tempo.*
+• **[Simple Golf Swing That Purely Compresses](https://www.youtube.com/results?search_query=Danny+Maude+pure+iron+shots)** — *Danny Maude*
+  *Learn how to strike the ball before the turf for effortless compression.*
+• **[Driver Setup & Curing the Slice Forever](https://www.youtube.com/results?search_query=Me+And+My+Golf+cure+slice)** — *Me And My Golf*
+  *Fix your clubface path and unlock 20+ extra yards off the tee.*
+• **[Putting & Chipping Short-Game Secrets](https://www.youtube.com/results?search_query=Scratch+Golf+short+game+secrets)** — *Scratch Golf*
+  *Distance control and green-reading hacks to save strokes.*
+
+### ⚙️ 4 First-Principles Swing Mechanics:
+1. **Grip (Handshake Pressure 6/10)**: Neutral grip with both V's pointing to your trailing shoulder. Never death-grip the club.
+2. **Stance (Launch Pad)**: Hinge at the hips, athletic knee flex, spine tilted ~30°, weight balanced 50/50.
+3. **Hip Rotation & Lag**: Start downswing with the lower body uncoiling first; hold wrist lag to unleash stored kinetic energy.
+4. **Follow-Through**: Accelerate through the ball and finish tall with your belt buckle facing the target!
+
+⚡ **Vibe Momentum: ${vibeMomentum}%** — Watch one video, lock in the grip, and let's get you in the zone!`
+      };
+    } else {
+      const q = `${w1} ${w2}`;
+      return {
+        action: 'SHOW_VIDEOS',
+        text: `### 🚀 Masterclass Guides for ${w1} ${w2}!
+Telemetry shows your vibe momentum at **${vibeMomentum}%**. I've opened the **Universe Videos** tab with curated guides!
+
+### 🎥 Recommended Tutorials:
+• **[Beginner's Masterclass: ${w1} ${w2}](https://www.youtube.com/results?search_query=${encodeURIComponent(q + ' masterclass')})**
+• **[Pro Mechanics & Common Pitfalls](https://www.youtube.com/results?search_query=${encodeURIComponent(q + ' tutorial drills')})**
+• **[Daily Training Drills & Routines](https://www.youtube.com/results?search_query=${encodeURIComponent(q + ' advanced training')})**
+
+Tap any link to watch on YouTube or explore the Videos tab right in TwoWords!`
+      };
+    }
+  }
+
+  // Places & Courses
+  if (msg.match(/\b(place|places|course|courses|where|range|court|gym|park|field|club|nearby)\b/)) {
+    if (isGolf) {
+      return {
+        action: 'SHOW_EVENTS',
+        text: `### ⛳ Top Golf Courses & Ranges around ${city}:
+• **Corica Park (Alameda)** — 36 award-winning holes, Australian sand-belt styling, and Toptracer driving range.
+• **Metropolitan Golf Links (Oakland)** — Championship links course near the water with scenic Bay views.
+• **Monarch Bay Golf Club (San Leandro)** — Coastal greens, lighted practice facilities, and bay-side driving bays.
+• **Lake Chabot Golf Course** — Rolling hillside fairways with panoramic city vistas.
+
+I've opened the Universe Places tab with interactive maps and directions for you! 🗺️`
+      };
+    } else {
+      return {
+        action: 'SHOW_EVENTS',
+        text: `I've opened local spots and gathering hubs for **${w1} ${w2}** in ${city}! Check the Places tab in the Universe panel. 🗺️`
+      };
+    }
+  }
+
+  // Navigation
+  if (msg.match(/\b(navigate|navigation|match|where is|how far|distance|walk|turn|heading)\b/)) {
+    return {
+      action: 'RECENTER_MAP',
+      text: `Your target match **${matchName}** is **${distToMatch}m** away (~${etaMinutes} min walk). Heading is aligned! Tap **📷 Live AR Mode** to see their floating 3D beacon over the skyline!`
+    };
+  }
+
+  // Default Grok witty response
+  return {
+    action: null,
+    text: `⚡ **GROK-VERA Live Telemetry Active!**
+Ambition: **${w1} · ${w2}** in ${city} | Vibe Momentum: **${vibeMomentum}%**
+
+Ask me for:
+• 🎥 *"Show me instructional videos on golfing"* — pro lessons, YouTube masterclasses, and swing physics
+• ⛳ *"Where can I play golf nearby?"* — top local courses, ranges, and putting greens
+• 🎯 *"Navigate to ${matchName}"* — live directional guidance (${distToMatch}m away)
+• ⚔️ *"What are my daily quests?"* — claim XP and unlock badges
+
+What are we conquering next? 🚀`
+  };
+}
+
+/**
+ * Main chat handler.
+ * Crunches telemetry, chooses best available AI brain, and dispatches actions.
  */
 async function chat({ sessionId, message, context, apiKey }) {
   if (!message || !message.trim()) throw new Error('Empty message');
 
-  // If no Gemini key is provided, run our built-in Semantic Intelligence Engine immediately
-  if (!apiKey || apiKey.trim() === '' || apiKey.includes('your_key_here')) {
-    const smart = generateSmartVeraResponse({ message, context });
-    addToHistory(sessionId, 'user', message);
-    addToHistory(sessionId, 'model', smart.text);
-    return smart;
+  // Step 1: Crunch real-time player telemetry
+  const telemetry = crunchPlayerTelemetry(context);
+  const systemPrompt = buildGrokSystemPrompt(telemetry);
+  const history = getHistory(sessionId);
+
+  let rawResponse = null;
+
+  // Step 2: Route to best available Super-Genius AI model
+  // Priority A: xAI Grok (if key provided)
+  const xaiKey = process.env.XAI_API_KEY || (apiKey && apiKey.startsWith('xai-') ? apiKey : null);
+  if (xaiKey) {
+    try {
+      rawResponse = await callXAI({ apiKey: xaiKey, systemPrompt, message, history });
+    } catch(e) {
+      console.warn('[GROK-VERA] xAI call failed:', e.message);
+    }
   }
 
-  // Try calling Google Gemini API
-  try {
-    const history = getHistory(sessionId);
-    const systemPrompt = buildSystemPrompt(context || {});
-
-    const payload = {
-      system_instruction: { parts: [{ text: systemPrompt }] },
-      contents: [
-        ...history,
-        { role: 'user', parts: [{ text: message }] }
-      ],
-      generationConfig: {
-        temperature: 0.8,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 600
-      }
-    };
-
-    const postData = JSON.stringify(payload);
-    const modelToUse = GEMINI_MODELS[0];
-    const fullUrl = GEMINI_BASE_URL + modelToUse + ':generateContent?key=' + apiKey;
-    const urlObj = new URL(fullUrl);
-
-    const result = await new Promise((resolve, reject) => {
-      const options = {
-        hostname: urlObj.hostname,
-        path: urlObj.pathname + urlObj.search,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
-        },
-        timeout: 8000
-      };
-
-      const req = https.request(options, (res) => {
-        let data = '';
-        res.on('data', chunk => { data += chunk; });
-        res.on('end', () => {
-          try {
-            const json = JSON.parse(data);
-            if (json.error) return reject(new Error(json.error.message || 'Gemini error'));
-            const responseText = json.candidates && json.candidates[0] &&
-              json.candidates[0].content && json.candidates[0].content.parts &&
-              json.candidates[0].content.parts[0] && json.candidates[0].content.parts[0].text;
-            if (!responseText) return reject(new Error('No response text from Gemini'));
-
-            addToHistory(sessionId, 'user', message);
-            addToHistory(sessionId, 'model', responseText);
-
-            const actionRx = /\{"action":"([A-Z_]+)"\}/;
-            const actionMatch = actionRx.exec(responseText);
-            const action = actionMatch ? actionMatch[1] : null;
-            const speech = responseText.replace(/\{"action":"[A-Z_]+"\}/g, '').trim();
-
-            resolve({ text: speech, action, raw: responseText });
-          } catch (e) {
-            reject(e);
-          }
-        });
-      });
-
-      req.on('error', reject);
-      req.on('timeout', () => { req.destroy(); reject(new Error('Gemini timeout')); });
-      req.write(postData);
-      req.end();
-    });
-
-    return result;
-  } catch (err) {
-    console.warn('[VERA] Gemini API call failed (' + err.message + '). Falling back to built-in semantic engine.');
-    // Seamless fallback to high-IQ engine so the user is never left hanging
-    const fallback = generateSmartVeraResponse({ message, context });
-    addToHistory(sessionId, 'user', message);
-    addToHistory(sessionId, 'model', fallback.text);
-    return fallback;
+  // Priority B: Local Proxy (Active Claude / Gemini proxy on localhost:8080)
+  if (!rawResponse) {
+    try {
+      rawResponse = await callLocalProxy({ systemPrompt, message, history });
+    } catch(e) {
+      console.warn('[GROK-VERA] Local proxy call failed or offline:', e.message);
+    }
   }
+
+  // Priority C: Google Gemini API (if key provided)
+  const geminiKey = process.env.GEMINI_API_KEY || (apiKey && apiKey.startsWith('AIza') ? apiKey : null);
+  if (!rawResponse && geminiKey) {
+    try {
+      rawResponse = await callGemini({ apiKey: geminiKey, systemPrompt, message, history });
+    } catch(e) {
+      console.warn('[GROK-VERA] Gemini call failed:', e.message);
+    }
+  }
+
+  // Priority D: Autonomous Algorithmic Neural Matrix Engine
+  if (!rawResponse) {
+    const algo = generateAlgorithmicNeuralResponse({ message, telemetry });
+    addToHistory(sessionId, 'user', message);
+    addToHistory(sessionId, 'model', algo.text);
+    return { ...algo, telemetry };
+  }
+
+  // Parse action from AI output
+  const actionRx = /\{"action":"([A-Z_]+)"\}/;
+  const actionMatch = actionRx.exec(rawResponse);
+  const action = actionMatch ? actionMatch[1] : null;
+  const speech = rawResponse.replace(/\{"action":"[A-Z_]+"\}/g, '').trim();
+
+  addToHistory(sessionId, 'user', message);
+  addToHistory(sessionId, 'model', speech);
+
+  return { text: speech, action, raw: rawResponse, telemetry };
 }
 
 /**
- * Generate a welcome greeting when the player enters the app.
+ * Generate energetic Grok greeting.
  */
 async function generateGreeting({ word1, word2, city, apiKey }) {
-  const w1 = word1 || 'PLAY';
-  const w2 = word2 || 'GOLF';
-  const c = city || 'Oakland, CA';
-
-  if (!apiKey) {
-    return {
-      action: null,
-      text: `Hey! I'm VERA, your TwoWords guide. Ready to explore **${w1} · ${w2}** in ${c}? Ask me for instructional videos, local courses, directions to your match, or daily quests!`
-    };
-  }
-
+  const context = { word1, word2, city };
   return chat({
     sessionId: 'greeting_' + Date.now(),
-    message: `I just entered TwoWords with ambition ${w1} ${w2} in ${c}. Give me an energetic welcome and one key tip!`,
-    context: { word1: w1, word2: w2, city: c },
+    message: `I just entered TwoWords with ambition ${word1 || 'PLAY'} ${word2 || 'GOLF'} in ${city || 'Oakland'}. Give me an energetic, witty Grok-style welcome and one golden tip!`,
+    context,
     apiKey
   });
 }
 
-module.exports = { chat, generateGreeting, clearHistory, generateSmartVeraResponse };
+module.exports = {
+  chat,
+  generateGreeting,
+  clearHistory,
+  crunchPlayerTelemetry,
+  generateAlgorithmicNeuralResponse
+};
