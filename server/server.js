@@ -14,6 +14,20 @@ const morgan      = require('morgan');
 const rateLimit   = require('express-rate-limit');
 const selfsigned  = require('selfsigned');
 
+// ── Load .env ─────────────────────────────────────────────────────────────────
+try {
+  const envPath = require('path').join(__dirname, '.env');
+  if (require('fs').existsSync(envPath)) {
+    require('fs').readFileSync(envPath, 'utf8').split(/\r?\n/).forEach(line => {
+      const [k, ...v] = line.split('=');
+      if (k && v.length && !process.env[k.trim()]) process.env[k.trim()] = v.join('=').trim();
+    });
+  }
+} catch(_) {}
+
+// ── VERA AI Agent Service ─────────────────────────────────────────────────────
+const aiAgent = require('./services/aiAgentService');
+
 // ── Self-Signed TLS Cert (enables camera/GPS on mobile over LAN) ─────────────
 async function getOrGenerateCerts() {
   const certPath = path.join(__dirname, '.certs');
@@ -68,9 +82,9 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],  // Allow onclick= handlers in HTML
       styleSrc:    ["'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'unpkg.com'],
       fontSrc:     ["'self'", 'fonts.gstatic.com'],
-      imgSrc:      ["'self'", 'data:', 'blob:', '*.cartocdn.com', '*.openstreetmap.org', '*.openstreetmap.fr', '*.arcgisonline.com', '*.openfreemap.org', '*.googleapis.com', '*.gstatic.com', 'maps.gstatic.com'],
-      connectSrc:  ["'self'", 'ws:', 'wss:', '*.cartocdn.com', '*.overpass-api.de', 'nominatim.openstreetmap.org', '*.arcgisonline.com', '*.openfreemap.org', 'maps.googleapis.com', '*.googleapis.com'],
-      mediaSrc:    ["'self'", 'blob:'],
+      imgSrc:      ["'self'", 'data:', 'blob:', '*.cartocdn.com', '*.openstreetmap.org', '*.openstreetmap.fr', '*.arcgisonline.com', '*.openfreemap.org', '*.googleapis.com', '*.gstatic.com', 'maps.gstatic.com', 'source.unsplash.com', 'api.qrserver.com'],
+      connectSrc:  ["'self'", 'ws:', 'wss:', '*.cartocdn.com', '*.overpass-api.de', 'nominatim.openstreetmap.org', '*.arcgisonline.com', '*.openfreemap.org', 'maps.googleapis.com', '*.googleapis.com', 'generativelanguage.googleapis.com', 'en.wikipedia.org'],
+      mediaSrc:    ["'self'", 'blob:', 'data:'],
       workerSrc:   ["'self'", 'blob:'],
       frameSrc:    ["'self'", 'www.google.com'],
       objectSrc:   ["'none'"],
@@ -629,6 +643,52 @@ app.post('/api/chat/messages', (req, res) => {
   database.chatMessages.push(newMsg);
   broadcastToAll({ type: 'CHAT_MESSAGE', message: newMsg });
   res.json({ success: true, message: newMsg });
+});
+
+// 13. VERA AI Agent Chat Endpoint
+// POST /api/ai/chat  { sessionId, message, context:{word1,word2,city,arMode,matchName,distToMatch} }
+app.post('/api/ai/chat', async (req, res) => {
+  const { sessionId, message, context } = req.body;
+  if (!message) return res.status(400).json({ success: false, error: 'message is required' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    // Graceful offline fallback — VERA still responds, just without AI
+    const fallbacks = [
+      'I am VERA! Your GEMINI_API_KEY is not set yet — add it to server/.env to unlock my full intelligence. For now: keep exploring your ' + (context && context.word1 ? context.word1 + ' ' + context.word2 : 'two words') + ' adventure!',
+      'Voice commands work without my AI brain, but to really talk to me, add GEMINI_API_KEY to server/.env.',
+      'Almost there — add GEMINI_API_KEY=your_key to server/.env and restart. I have so much to tell you!'
+    ];
+    return res.json({ success: true, text: fallbacks[Math.floor(Math.random() * fallbacks.length)], action: null });
+  }
+  try {
+    const result = await aiAgent.chat({ sessionId: sessionId || 'default', message, context: context || {}, apiKey });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[VERA] Chat error:', err.message);
+    res.status(500).json({ success: false, error: err.message, text: 'VERA is thinking... try again in a moment.' });
+  }
+});
+
+// POST /api/ai/greet  { word1, word2, city }
+app.post('/api/ai/greet', async (req, res) => {
+  const { word1, word2, city } = req.body;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.json({ success: true, text: 'Hey! I am VERA, your TwoWords guide. Set GEMINI_API_KEY in server/.env to unlock my full personality. Let us go explore your ' + (word1 || 'TWO') + ' ' + (word2 || 'WORDS') + ' adventure!', action: null });
+  }
+  try {
+    const result = await aiAgent.generateGreeting({ word1, word2, city, apiKey });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[VERA] Greet error:', err.message);
+    res.json({ success: true, text: 'Welcome to TwoWords! Your journey with ' + (word1||'') + ' ' + (word2||'') + ' starts now. I am VERA, your guide. Ask me anything!', action: null });
+  }
+});
+
+// DELETE /api/ai/session/:id  — clear history
+app.delete('/api/ai/session/:sessionId', (req, res) => {
+  aiAgent.clearHistory(req.params.sessionId);
+  res.json({ success: true, message: 'Session cleared' });
 });
 
 // Real-Time WebSocket Server

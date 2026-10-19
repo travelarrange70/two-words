@@ -694,6 +694,234 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
    ============================================================ */
 #xp-level-label { font-size: 0.65rem; font-weight: 700; color: var(--accent-cyan); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
 
+
+/* ============================================================
+   GAMEPLAY, QUESTS, ACHIEVEMENTS & FITNESS HUD STYLES
+   ============================================================ */
+/* Daily Challenge Chip (Enabled & Interactive) */
+#daily-challenge-chip {
+  position: absolute; top: 63px; right: 16px; z-index: 10000;
+  background: rgba(12,15,24,0.92); backdrop-filter: blur(18px);
+  border: 1.5px solid rgba(255,183,0,0.45); border-radius: 20px;
+  padding: 6px 14px; font-size: 0.72rem; font-weight: 800; color: #ffd700;
+  display: flex !important; align-items: center; gap: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  cursor: pointer; transition: all 0.25s ease;
+}
+#daily-challenge-chip:hover {
+  border-color: rgba(255,215,0,0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(255,215,0,0.3);
+}
+#daily-challenge-chip.ready-to-claim {
+  border-color: #00ff99;
+  color: #00ff99;
+  animation: pulse-quest-ready 1.5s infinite;
+}
+@keyframes pulse-quest-ready {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,255,153,0.3); }
+  50% { box-shadow: 0 0 22px rgba(0,255,153,0.7); border-color: #00ff99; }
+}
+
+/* Map Fitness Stats Pill */
+#map-fitness-pill {
+  position: absolute; top: 63px; left: 16px; z-index: 10000;
+  background: rgba(12,16,26,0.92); backdrop-filter: blur(18px);
+  border: 1px solid rgba(0,229,255,0.35); border-radius: 20px;
+  padding: 5px 12px; font-size: 0.70rem; font-weight: 800; color: #fff;
+  display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 18px rgba(0,0,0,0.5);
+  cursor: pointer; transition: all 0.2s ease;
+}
+#map-fitness-pill:hover {
+  border-color: rgba(0,229,255,0.8);
+  box-shadow: 0 4px 20px rgba(0,229,255,0.3);
+  transform: translateY(-1px);
+}
+#map-fitness-pill .fit-sep { color: rgba(255,255,255,0.25); }
+#map-fitness-pill #fit-dist-val { color: #00e5ff; }
+#map-fitness-pill #fit-cal-val { color: #ff7043; }
+#map-fitness-pill #fit-pace-val { color: #a855f7; }
+
+/* Achievement Unlock Banner / Toast */
+.achievement-toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
+  background: linear-gradient(135deg, rgba(20,24,38,0.98), rgba(10,12,20,0.98));
+  border: 1.5px solid #ffd700; border-radius: 18px;
+  padding: 14px 22px; color: #fff; z-index: 100005;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 25px rgba(255,215,0,0.35);
+  opacity: 0; transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none; max-width: 90vw;
+}
+.achievement-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.achievement-toast .ach-icon { font-size: 2.2rem; filter: drop-shadow(0 0 8px rgba(255,215,0,0.5)); }
+.achievement-toast .ach-info { display: flex; flex-direction: column; gap: 2px; }
+.achievement-toast .ach-sub { font-size: 0.7rem; font-weight: 800; color: #ffd700; text-transform: uppercase; letter-spacing: 1px; }
+.achievement-toast .ach-title { font-size: 1rem; font-weight: 900; color: #fff; }
+.achievement-toast .ach-xp { font-size: 0.8rem; font-weight: 800; color: #00ff99; }
+
+/* Modals: Quests, Badges & Fitness */
+#quests-modal, #achievements-modal, #fitness-modal {
+  position: fixed; inset: 0; z-index: 99990;
+  background: rgba(3, 3, 8, 0.94); backdrop-filter: blur(24px);
+  display: none; align-items: center; justify-content: center; padding: 16px;
+}
+#quests-modal.active, #achievements-modal.active, #fitness-modal.active {
+  display: flex;
+}
+
+.game-modal-card {
+  background: rgba(14, 18, 28, 0.98);
+  border: 1.5px solid rgba(0, 229, 255, 0.3);
+  border-radius: 26px; width: 100%; max-width: 460px; max-height: 85vh;
+  padding: 24px; color: #fff; box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+  display: flex; flex-direction: column; gap: 16px; overflow: hidden;
+}
+
+.game-modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;
+}
+.game-modal-title {
+  font-size: 1.25rem; font-weight: 900; display: flex; align-items: center; gap: 10px;
+}
+.game-modal-close {
+  background: rgba(255,255,255,0.1); border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.game-modal-close:hover { background: rgba(255,255,255,0.2); }
+
+.game-modal-body {
+  overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+  padding-right: 4px;
+}
+.game-modal-body::-webkit-scrollbar { width: 5px; }
+.game-modal-body::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.3); border-radius: 4px; }
+
+/* Streak banner */
+.streak-banner {
+  background: linear-gradient(135deg, rgba(255,107,0,0.18), rgba(255,193,7,0.12));
+  border: 1.5px solid rgba(255,152,0,0.4); border-radius: 18px;
+  padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+}
+.streak-days { display: flex; gap: 6px; }
+.streak-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #a0aec0;
+}
+.streak-dot.active {
+  background: #ff7043; border-color: #ff9800; color: #fff;
+  box-shadow: 0 0 10px rgba(255,112,67,0.6);
+}
+
+/* Quest Card */
+.quest-item {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+  transition: all 0.2s ease;
+}
+.quest-item:hover { border-color: rgba(0,229,255,0.3); }
+.quest-item.completed { border-color: rgba(0,255,153,0.3); background: rgba(0,255,153,0.04); }
+.quest-item-top { display: flex; justify-content: space-between; align-items: center; }
+.quest-info-row { display: flex; align-items: center; gap: 10px; }
+.quest-icon { font-size: 1.4rem; }
+.quest-texts { display: flex; flex-direction: column; gap: 2px; }
+.quest-title { font-size: 0.88rem; font-weight: 800; color: #fff; }
+.quest-sub { font-size: 0.72rem; color: #a0aec0; }
+.quest-reward {
+  font-size: 0.75rem; font-weight: 800; color: #ffd700;
+  background: rgba(255,215,0,0.12); border: 1px solid rgba(255,215,0,0.25);
+  border-radius: 10px; padding: 3px 8px; white-space: nowrap;
+}
+.quest-bar-bg {
+  width: 100%; height: 6px; background: rgba(255,255,255,0.08);
+  border-radius: 4px; overflow: hidden; position: relative;
+}
+.quest-bar-fill {
+  height: 100%; background: linear-gradient(90deg, #00e5ff, #00ff99);
+  border-radius: 4px; transition: width 0.4s ease;
+}
+.quest-claim-btn {
+  background: linear-gradient(135deg, #00ff99, #00c853); border: none; color: #042410;
+  font-weight: 900; font-size: 0.78rem; padding: 8px 14px; border-radius: 12px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  box-shadow: 0 4px 14px rgba(0,255,153,0.35); transition: transform 0.15s ease;
+}
+.quest-claim-btn:hover { transform: scale(1.02); }
+.quest-claimed-badge {
+  font-size: 0.75rem; font-weight: 800; color: #00ff99; display: flex; align-items: center; gap: 4px;
+}
+
+/* Badges Grid */
+.badges-filter-bar {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+}
+.badges-filter-tab {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 5px 12px; font-size: 0.72rem; font-weight: 700;
+  color: #a0aec0; cursor: pointer; white-space: nowrap; transition: all 0.2s ease;
+}
+.badges-filter-tab.active {
+  background: rgba(0,229,255,0.2); border-color: #00e5ff; color: #fff;
+}
+.badges-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.badge-card {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 6px; transition: all 0.2s ease; position: relative;
+}
+.badge-card.unlocked {
+  background: rgba(255,215,0,0.04); border-color: rgba(255,215,0,0.35);
+}
+.badge-card.unlocked:hover {
+  transform: translateY(-2px); border-color: rgba(255,215,0,0.7);
+  box-shadow: 0 8px 24px rgba(255,215,0,0.18);
+}
+.badge-card.locked { opacity: 0.45; filter: grayscale(0.8); }
+.badge-avatar {
+  font-size: 2rem; width: 50px; height: 50px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
+}
+.badge-card.unlocked .badge-avatar {
+  border-color: #ffd700; background: rgba(255,215,0,0.12);
+  box-shadow: 0 0 16px rgba(255,215,0,0.3);
+}
+.badge-name { font-size: 0.82rem; font-weight: 900; color: #fff; }
+.badge-desc { font-size: 0.68rem; color: #a0aec0; line-height: 1.3; }
+.badge-val { font-size: 0.68rem; font-weight: 800; color: #ffd700; margin-top: auto; }
+
+/* Fitness Stats Grid */
+.fitness-stat-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.fitness-stat-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 4px;
+}
+.fit-label { font-size: 0.72rem; font-weight: 700; color: #a0aec0; text-transform: uppercase; }
+.fit-num { font-size: 1.5rem; font-weight: 900; color: #fff; }
+.fit-unit { font-size: 0.8rem; color: #00e5ff; font-weight: 700; margin-left: 2px; }
+
+/* Interactive POI Leaflet Popup */
+.poi-checkin-popup {
+  font-family: inherit; font-size: 0.85rem; color: #1a1a24; padding: 4px;
+}
+.poi-checkin-btn {
+  margin-top: 8px; width: 100%; background: linear-gradient(135deg, #00c853, #00e676);
+  border: none; color: #fff; font-weight: 800; font-size: 0.75rem; padding: 6px 12px;
+  border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.poi-checkin-btn.disabled {
+  background: #cfd8dc; color: #78909c; cursor: not-allowed;
+}
+
 </style>
 </head>
 <body>
@@ -733,7 +961,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
   </div>
 
   <!-- Daily Challenge Chip -->
-  <div id="daily-challenge-chip">
+  <div id="daily-challenge-chip" onclick="openQuestsModal()" title="View Daily Quests">
     <span>🔥</span> <span id="ch-label">Walk 500m</span>
     <div class="ch-bar"><div class="ch-fill" id="ch-fill" style="width:0%"></div></div>
     <span id="ch-pct">0%</span>
@@ -741,12 +969,24 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
 
   <!-- Main Map Viewport -->
   <main id="screen-home" class="screen active">
+    <!-- Real-time Fitness HUD Pill -->
+    <div id="map-fitness-pill" onclick="openFitnessModal()" title="View Walking & Fitness Stats">
+      <span>👟</span>
+      <span id="fit-dist-val">0 m</span>
+      <span class="fit-sep">·</span>
+      <span id="fit-cal-val">0 kcal</span>
+      <span class="fit-sep">·</span>
+      <span id="fit-pace-val">0.0 km/h</span>
+    </div>
     <div id="home-map"><div id="leaflet-map"></div></div>
     <div class="map-loc-chip">
       <div class="loc-dot"></div>
       <span id="map-city-label">Locating City...</span>
     </div>
     <div id="map-actions">
+      <button class="map-act" id="btn-open-quests" title="Daily Quests & Challenges" onclick="openQuestsModal()">📜</button>
+      <button class="map-act" id="btn-open-achievements" title="Achievements & Badges" onclick="openAchievementsModal()">🏆</button>
+      <button class="map-act" id="btn-toggle-trail" title="Toggle Walk Trail" onclick="toggleWalkTrail()">👣</button>
       <button class="map-act" id="btn-recenter" title="Re-center Map" onclick="recenterMap()">🎯</button>
       <button class="map-act" id="btn-open-matches" title="View Nearby Matches" onclick="openMatchesModal()">👥</button>
       <button class="map-act" id="btn-open-chat" title="Chat with Match" onclick="openChatModal()">💬</button>
@@ -930,6 +1170,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
   <nav id="bottom-nav">
     <div class="nb active" id="nb-map" onclick="document.querySelectorAll('.nb').forEach(e=>e.classList.remove('active')); this.classList.add('active');"><span class="nb-icon">🗺️</span><span>Map</span></div>
     <div class="nb" id="nb-discover" onclick="openAmbitionModal()"><span class="nb-icon">🔍</span><span>Discover</span></div>
+    <div class="nb" id="nb-quests" onclick="openQuestsModal()"><span class="nb-icon">📜</span><span>Quests</span></div>
+    <div class="nb" id="nb-achievements" onclick="openAchievementsModal()"><span class="nb-icon">🏆</span><span>Badges</span></div>
     <div class="nb" id="nb-universe" onclick="openUniversePanel()"><span class="nb-icon">🌐</span><span>Universe</span></div>
     <div class="nb" id="nb-social" onclick="openSocialHub()"><span class="nb-icon">💬</span><span>Social</span></div>
   </nav>
@@ -1218,6 +1460,124 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
   <!-- ====================================================
        ⚙️ SETTINGS MODAL
        ==================================================== -->
+  
+  <!-- ====================================================
+       📜 DAILY QUESTS & CHALLENGES MODAL
+       ==================================================== -->
+  <div id="quests-modal">
+    <div class="game-modal-card">
+      <div class="game-modal-header">
+        <div class="game-modal-title"><span>⚔️</span> Quests & Challenges</div>
+        <button class="game-modal-close" onclick="closeQuestsModal()">✕</button>
+      </div>
+
+      <!-- Streak Banner -->
+      <div class="streak-banner">
+        <div>
+          <div style="font-size:0.95rem; font-weight:900; color:#fff;" id="streak-count-txt">🔥 1 Day Streak</div>
+          <div style="font-size:0.72rem; color:#ffb74d;">+10% Bonus XP Multiplier Active</div>
+        </div>
+        <div class="streak-days">
+          <div class="streak-dot active" title="Day 1">1</div>
+          <div class="streak-dot" title="Day 2">2</div>
+          <div class="streak-dot" title="Day 3">3</div>
+          <div class="streak-dot" title="Day 4">4</div>
+          <div class="streak-dot" title="Day 5">5</div>
+          <div class="streak-dot" title="Day 6">6</div>
+          <div class="streak-dot" title="Day 7">7</div>
+        </div>
+      </div>
+
+      <!-- Quests List Container -->
+      <div class="game-modal-body" id="quests-list-container">
+        <!-- Rendered dynamically by QuestsEngine -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       🏆 ACHIEVEMENTS & BADGES MODAL
+       ==================================================== -->
+  <div id="achievements-modal">
+    <div class="game-modal-card">
+      <div class="game-modal-header">
+        <div>
+          <div class="game-modal-title"><span>🏆</span> Badges & Milestones</div>
+          <div style="font-size:0.72rem; color:#a0aec0; margin-top:2px;" id="achievements-summary-txt">0 of 16 Unlocked · 0 Total XP</div>
+        </div>
+        <button class="game-modal-close" onclick="closeAchievementsModal()">✕</button>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="badges-filter-bar">
+        <div class="badges-filter-tab active" onclick="filterBadges('all', this)">All (16)</div>
+        <div class="badges-filter-tab" onclick="filterBadges('distance', this)">🥾 Walking</div>
+        <div class="badges-filter-tab" onclick="filterBadges('ar', this)">📷 AR Modes</div>
+        <div class="badges-filter-tab" onclick="filterBadges('social', this)">👥 Social</div>
+        <div class="badges-filter-tab" onclick="filterBadges('poi', this)">🏛️ POIs</div>
+      </div>
+
+      <!-- Badges Grid Container -->
+      <div class="game-modal-body badges-grid" id="badges-grid-container">
+        <!-- Rendered dynamically by AchievementsEngine -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       👟 MOVEMENT & FITNESS STATS MODAL
+       ==================================================== -->
+  <div id="fitness-modal">
+    <div class="game-modal-card" style="max-width:400px;">
+      <div class="game-modal-header">
+        <div class="game-modal-title"><span>👟</span> Movement & Fitness</div>
+        <button class="game-modal-close" onclick="closeFitnessModal()">✕</button>
+      </div>
+
+      <div class="game-modal-body">
+        <div class="fitness-stat-grid">
+          <div class="fitness-stat-card">
+            <div class="fit-label">Distance Walked</div>
+            <div><span class="fit-num" id="modal-fit-dist">0</span><span class="fit-unit">m</span></div>
+          </div>
+          <div class="fitness-stat-card">
+            <div class="fit-label">Calories Burned</div>
+            <div><span class="fit-num" id="modal-fit-cal" style="color:#ff7043;">0</span><span class="fit-unit" style="color:#ff7043;">kcal</span></div>
+          </div>
+          <div class="fitness-stat-card">
+            <div class="fit-label">Estimated Steps</div>
+            <div><span class="fit-num" id="modal-fit-steps" style="color:#00ff99;">0</span><span class="fit-unit" style="color:#00ff99;">steps</span></div>
+          </div>
+          <div class="fitness-stat-card">
+            <div class="fit-label">Walking Pace</div>
+            <div><span class="fit-num" id="modal-fit-pace" style="color:#a855f7;">0.0</span><span class="fit-unit" style="color:#a855f7;">km/h</span></div>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:12px; margin-top:4px;">
+          <div style="font-size:0.75rem; font-weight:800; color:#00e5ff; margin-bottom:4px;">💡 Exploration Tip</div>
+          <div style="font-size:0.72rem; color:#a0aec0; line-height:1.4;">
+            Every 100 meters walked earns bonus XP. Complete daily quests to boost your streak multiplier up to 2.0x!
+          </div>
+        </div>
+
+        <button onclick="toggleWalkTrail()" id="modal-trail-btn" style="background:rgba(0,229,255,0.12); border:1px solid rgba(0,229,255,0.3); color:#00e5ff; font-weight:800; font-size:0.8rem; padding:10px; border-radius:12px; cursor:pointer;">
+          👣 Toggle Walk Trail on Map (Active)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Achievement Toast Notification -->
+  <div class="achievement-toast" id="achievement-toast">
+    <div class="ach-icon" id="ach-toast-icon">🏆</div>
+    <div class="ach-info">
+      <div class="ach-sub">Achievement Unlocked!</div>
+      <div class="ach-title" id="ach-toast-title">First Steps</div>
+      <div class="ach-xp" id="ach-toast-xp">+25 XP</div>
+    </div>
+  </div>
+
   <div id="settings-modal" style="display:none; position:fixed; inset:0; z-index:99990; background:rgba(3,3,8,0.94); backdrop-filter:blur(24px); align-items:center; justify-content:center; padding:16px;">
     <div style="background:rgba(14,18,28,0.98); border:1.5px solid rgba(0,229,255,0.3); border-radius:24px; width:100%; max-width:420px; padding:24px; color:#fff; box-shadow:0 20px 60px rgba(0,0,0,0.8);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -1239,6 +1599,30 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
       <div style="display:flex; gap:10px; align-items:center; margin-bottom:16px;">
         <label style="font-size:0.8rem; color:#a0aec0; font-weight:700;">Sound Volume</label>
         <input type="range" id="volume-val" min="0" max="100" value="70" style="flex:1; accent-color:#00e5ff;" />
+      </div>
+      
+      <!-- Gameplay Options Section -->
+      <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:14px; margin-bottom:16px;">
+        <div style="font-size:0.8rem; font-weight:800; color:#00e5ff; text-transform:uppercase; margin-bottom:10px;">🎮 Gameplay & Rules</div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.75rem; font-weight:700; color:#a0aec0; margin-bottom:6px;">Pace & Difficulty Mode</label>
+          <select id="game-difficulty-select" onchange="onGameDifficultyChange(this.value)" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:8px 12px; color:#fff; font-size:0.85rem; outline:none;">
+            <option value="explorer" selected>Explorer (Balanced · Standard XP · 150m POI Radius)</option>
+            <option value="casual">Casual (Relaxed · 1.5x XP Boost · 250m POI Radius)</option>
+            <option value="hardcore">Hardcore (Strict Real GPS · 0.8x XP · 75m POI Radius)</option>
+          </select>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <label style="font-size:0.8rem; color:#a0aec0;">Display Walk Trail on Map</label>
+          <input type="checkbox" id="pref-trail-checkbox" checked onchange="toggleWalkTrail(this.checked)" style="accent-color:#00e5ff; width:18px; height:18px; cursor:pointer;" />
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <label style="font-size:0.8rem; color:#a0aec0;">Haptic Feedback</label>
+          <input type="checkbox" id="pref-haptic-checkbox" checked style="accent-color:#00e5ff; width:18px; height:18px; cursor:pointer;" />
+        </div>
       </div>
       <button onclick="confirmAvatarAndEnter(); document.getElementById('settings-modal').style.display='none';" style="width:100%; background:linear-gradient(135deg,#00e5ff,#1a73e8); border:none; padding:12px; border-radius:12px; color:#fff; font-weight:800; cursor:pointer;">Save Settings</button>
     </div>
@@ -1590,6 +1974,11 @@ function syncMapToState() {
       color: '#1a73e8', weight: 4, opacity: 0.8, dashArray: '10 6'
     }).addTo(map);
 
+    // Glowing Cyan Breadcrumb Walk Trail Layer
+    walkTrailPolyline = L.polyline(playerWalkTrail, {
+      color: '#00e5ff', weight: 4, opacity: 0.85, dashArray: '6, 6'
+    }).addTo(map);
+
     updateMapPOIs();
     generateNearbyMatches(currentAmbition.word1, currentAmbition.word2);
   }
@@ -1615,6 +2004,28 @@ function syncMapToState() {
       const marker = L.circleMarker([p.lat, p.lon], {
         radius: 7, color: p.color || '#00e5ff', fillColor: p.color || '#00e5ff', fillOpacity: 0.75, weight: 2
       }).addTo(map).bindPopup(`<strong>${p.icon || '📍'} ${p.name}</strong><br>${p.category || 'POI'}`);
+      const distToPOI = Math.round(haversineDistance(playerLat, playerLon, p.lat, p.lon));
+      const isCheckedIn = (window.checkedInPOIs && window.checkedInPOIs.has(p.id || p.name));
+      const checkinRadius = (window.gameDifficulty === 'casual' ? 250 : (window.gameDifficulty === 'hardcore' ? 75 : 150));
+      const canCheckIn = distToPOI <= checkinRadius;
+      
+      let checkinBtnHtml = '';
+      if (isCheckedIn) {
+        checkinBtnHtml = '<div style="margin-top:6px; font-size:0.75rem; font-weight:800; color:#00ff99;">⭐ Checked In (+25 XP)</div>';
+      } else if (canCheckIn) {
+        checkinBtnHtml = `<button class="poi-checkin-btn" onclick="checkInPOI('${p.id || p.name}', '${escapeHtml(p.name)}')">📍 Check In (+25 XP)</button>`;
+      } else {
+        checkinBtnHtml = `<div style="margin-top:6px; font-size:0.72rem; color:#78909c;">🚶 ${distToPOI}m away (Walk closer to check in)</div>`;
+      }
+
+      marker.bindPopup(`
+        <div class="poi-checkin-popup">
+          <div style="font-weight:900; font-size:0.95rem; color:#0f172a;">${p.icon || '📍'} ${p.name}</div>
+          <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">${p.category || 'Point of Interest'}</div>
+          ${checkinBtnHtml}
+        </div>
+      `);
+
       marker.on('click', () => setTargetPOI(p));
       mapPoiMarkers.push(marker);
     });
@@ -4525,21 +4936,53 @@ function syncMapToState() {
     totalDistanceWalked += distMeters;
     dailyWalkDistance += distMeters;
 
+    // Fitness metrics
+    const now = Date.now();
+    if (!walkTrackingStartTime) walkTrackingStartTime = now;
+    const elapsedSeconds = Math.max(1, (now - walkTrackingStartTime) / 1000);
+    const speedKmh = ((totalDistanceWalked / elapsedSeconds) * 3.6).toFixed(1);
+    const calories = Math.round(totalDistanceWalked * 0.045);
+    const steps = Math.round(totalDistanceWalked * 1.35);
+
+    // Update Fitness HUD pill on map
+    const fitDist = document.getElementById('fit-dist-val');
+    const fitCal = document.getElementById('fit-cal-val');
+    const fitPace = document.getElementById('fit-pace-val');
+    if (fitDist) fitDist.textContent = totalDistanceWalked >= 1000 ? (totalDistanceWalked / 1000).toFixed(2) + ' km' : Math.round(totalDistanceWalked) + ' m';
+    if (fitCal) fitCal.textContent = calories + ' kcal';
+    if (fitPace) fitPace.textContent = (speedKmh > 0 ? speedKmh : '4.5') + ' km/h';
+
+    // Update Fitness Modal
+    const mDist = document.getElementById('modal-fit-dist');
+    const mCal = document.getElementById('modal-fit-cal');
+    const mSteps = document.getElementById('modal-fit-steps');
+    const mPace = document.getElementById('modal-fit-pace');
+    if (mDist) mDist.textContent = Math.round(totalDistanceWalked);
+    if (mCal) mCal.textContent = calories;
+    if (mSteps) mSteps.textContent = steps;
+    if (mPace) mPace.textContent = (speedKmh > 0 ? speedKmh : '4.5');
+
+    // Update Route History Walk Trail on Leaflet Map
+    if (isWalkTrailVisible && map && walkTrailPolyline) {
+      playerWalkTrail.push([playerLat, playerLon]);
+      if (playerWalkTrail.length > 500) playerWalkTrail.shift();
+      walkTrailPolyline.setLatLngs(playerWalkTrail);
+    }
+
     // Check 100m milestone for XP reward
     if (totalDistanceWalked - lastXpDistanceWalked >= 100) {
       lastXpDistanceWalked = totalDistanceWalked;
       addXP(10, '100m Walked 🚶');
     }
 
-    // Update Daily Challenge Chip
-    const chFill = document.getElementById('ch-fill');
-    const chPct = document.getElementById('ch-pct');
-    const p = Math.min(100, Math.round((dailyWalkDistance / 500) * 100));
-    if (chFill) chFill.style.width = p + '%';
-    if (chPct) chPct.textContent = p + '%';
-    if (p >= 100 && !dailyChallengeCompleted) {
-      dailyChallengeCompleted = true;
-      addXP(50, 'Daily 500m Goal Complete! 🔥');
+    // Update Daily Quests Engine & Challenge Chip
+    if (window.QuestsEngine) {
+      window.QuestsEngine.onWalk(distMeters);
+    }
+
+    // Check Badges & Achievements
+    if (window.AchievementsEngine) {
+      window.AchievementsEngine.check();
     }
   }
 
@@ -4577,6 +5020,7 @@ function syncMapToState() {
         const dLon = (stepDist * Math.sin(rad)) / (111139 * Math.cos((playerLat * Math.PI) / 180));
         playerLat += dLat;
         playerLon += dLon;
+        recordWalkProgress(stepDist);
         recalcBearingAndDist();
         syncMapToState();
         syncStreetViewPosition(playerLat, playerLon);
@@ -4706,6 +5150,15 @@ function startARAnimationLoop() {
     const newLon = pos.coords.longitude;
     const isFirstRealFix = !hasRealGPS;
     hasRealGPS = true;
+
+    if (hasRealGPS && lastGPSUpdateLat !== null && lastGPSUpdateLon !== null) {
+      const movedMeters = haversineDistance(lastGPSUpdateLat, lastGPSUpdateLon, newLat, newLon);
+      if (movedMeters >= 1.5 && movedMeters <= 200) {
+        recordWalkProgress(movedMeters);
+      }
+    }
+    lastGPSUpdateLat = newLat;
+    lastGPSUpdateLon = newLon;
 
     playerLat = newLat;
     playerLon = newLon;
@@ -4910,6 +5363,16 @@ function startARAnimationLoop() {
     playXpClaim() {
       [659.25, 783.99, 987.77, 1318.51].forEach((freq, i) => {
         setTimeout(() => this.playTone(freq, 0.28, 'sine', 0.16), i * 80);
+      });
+    },
+    playAchievement() {
+      [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => {
+        setTimeout(() => this.playTone(freq, 0.35, 'triangle', 0.22), i * 85);
+      });
+    },
+    playQuestComplete() {
+      [440, 554.37, 659.25, 880].forEach((freq, i) => {
+        setTimeout(() => this.playTone(freq, 0.28, 'sine', 0.18), i * 75);
       });
     },
     toggleMute() {
@@ -6994,6 +7457,1406 @@ if (typeof shOpenProfile !== 'undefined') window.shOpenProfile = shOpenProfile;
       ring.addEventListener('pointercancel', onEnd);
     });
   })();
+
+  // ============================================================
+  // 🎮 GAMEPLAY, QUESTS, ACHIEVEMENTS & FITNESS ENGINE
+  // ============================================================
+  let walkTrackingStartTime = Date.now();
+  let playerWalkTrail = [[playerLat, playerLon]];
+  let walkTrailPolyline = null;
+  let isWalkTrailVisible = true;
+  let lastGPSUpdateLat = null;
+  let lastGPSUpdateLon = null;
+  let gameDifficulty = 'explorer'; // 'casual' | 'explorer' | 'hardcore'
+  let checkedInPOIs = new Set();
+  let arTimeSeconds = 0;
+  let arTimerInterval = null;
+  let modesUsed = new Set(['realmap']);
+  let hasUsedAR = false;
+  let hasFoundMatch = true;
+  let streakDays = 1;
+
+  // Load saved state
+  try {
+    const savedPOIs = localStorage.getItem('tw_checked_pois');
+    if (savedPOIs) checkedInPOIs = new Set(JSON.parse(savedPOIs));
+    const savedStreak = localStorage.getItem('tw_streak_days');
+    if (savedStreak) streakDays = Number(savedStreak) || 1;
+    const savedDiff = localStorage.getItem('tw_game_difficulty');
+    if (savedDiff) gameDifficulty = savedDiff;
+  } catch(e) {}
+
+  // ── Quests Engine ──────────────────────────────────────────
+  const QuestsEngine = {
+    quests: [
+      {
+        id: 'walk_500',
+        title: 'Daily Stride',
+        sub: 'Walk 500 meters today',
+        icon: '🚶',
+        goal: 500,
+        current: 0,
+        unit: 'm',
+        rewardXP: 50,
+        completed: false,
+        claimed: false
+      },
+      {
+        id: 'poi_visit',
+        title: 'Neighborhood Scout',
+        sub: 'Check in at 2 landmarks',
+        icon: '📍',
+        goal: 2,
+        current: 0,
+        unit: 'POIs',
+        rewardXP: 75,
+        completed: false,
+        claimed: false
+      },
+      {
+        id: 'ar_explore',
+        title: 'AR Visionary',
+        sub: 'Spend 2 minutes in AR mode',
+        icon: '📷',
+        goal: 120,
+        current: 0,
+        unit: 's',
+        rewardXP: 60,
+        completed: false,
+        claimed: false
+      },
+      {
+        id: 'match_reach',
+        title: 'True Ambition',
+        sub: 'Reach within 25m of your target',
+        icon: '🎯',
+        goal: 1,
+        current: 0,
+        unit: 'match',
+        rewardXP: 100,
+        completed: false,
+        claimed: false
+      }
+    ],
+
+    init() {
+      // Restore from localStorage
+      try {
+        const saved = localStorage.getItem('tw_daily_quests_state');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          this.quests.forEach(q => {
+            if (parsed[q.id]) {
+              q.current = parsed[q.id].current || 0;
+              q.completed = parsed[q.id].completed || false;
+              q.claimed = parsed[q.id].claimed || false;
+            }
+          });
+        }
+      } catch(e) {}
+      this.updateUI();
+    },
+
+    save() {
+      try {
+        const state = {};
+        this.quests.forEach(q => { state[q.id] = { current: q.current, completed: q.completed, claimed: q.claimed }; });
+        localStorage.setItem('tw_daily_quests_state', JSON.stringify(state));
+      } catch(e) {}
+    },
+
+    onWalk(meters) {
+      const q = this.quests.find(item => item.id === 'walk_500');
+      if (q && !q.completed) {
+        q.current = Math.min(q.goal, q.current + meters);
+        if (q.current >= q.goal) {
+          q.completed = true;
+          this.notifyQuestReady(q);
+        }
+        this.save();
+        this.updateUI();
+      }
+    },
+
+    onPOICheckin() {
+      const q = this.quests.find(item => item.id === 'poi_visit');
+      if (q && !q.completed) {
+        q.current = Math.min(q.goal, q.current + 1);
+        if (q.current >= q.goal) {
+          q.completed = true;
+          this.notifyQuestReady(q);
+        }
+        this.save();
+        this.updateUI();
+      }
+    },
+
+    onARTick() {
+      const q = this.quests.find(item => item.id === 'ar_explore');
+      if (q && !q.completed) {
+        q.current = Math.min(q.goal, q.current + 1);
+        if (q.current >= q.goal) {
+          q.completed = true;
+          this.notifyQuestReady(q);
+        }
+        this.save();
+        this.updateUI();
+      }
+    },
+
+    onMatchProximity() {
+      const q = this.quests.find(item => item.id === 'match_reach');
+      if (q && !q.completed) {
+        q.current = 1;
+        q.completed = true;
+        this.notifyQuestReady(q);
+        this.save();
+        this.updateUI();
+      }
+    },
+
+    notifyQuestReady(q) {
+      if (AudioManager) AudioManager.playQuestComplete();
+      showFloatingXPNotification('Quest Complete!', q.title + ' Ready to Claim');
+      const chip = document.getElementById('daily-challenge-chip');
+      if (chip) chip.classList.add('ready-to-claim');
+    },
+
+    claim(questId) {
+      const q = this.quests.find(item => item.id === questId);
+      if (!q || !q.completed || q.claimed) return;
+      q.claimed = true;
+      let xpToGive = q.rewardXP;
+      if (gameDifficulty === 'casual') xpToGive = Math.round(xpToGive * 1.5);
+      if (gameDifficulty === 'hardcore') xpToGive = Math.round(xpToGive * 0.8);
+      
+      addXP(xpToGive, q.title + ' Quest Claimed! ⚔️');
+      if (AudioManager) AudioManager.playXpClaim();
+      this.save();
+      this.updateUI();
+
+      // Check if all quests completed
+      const allDone = this.quests.every(item => item.claimed);
+      if (allDone) {
+        addXP(150, 'All Daily Quests Cleared! 🔥');
+      }
+    },
+
+    updateUI() {
+      // Update top Daily Challenge Chip
+      const firstActive = this.quests.find(item => !item.claimed) || this.quests[0];
+      const chLabel = document.getElementById('ch-label');
+      const chFill = document.getElementById('ch-fill');
+      const chPct = document.getElementById('ch-pct');
+      const chip = document.getElementById('daily-challenge-chip');
+
+      if (firstActive) {
+        const pct = Math.min(100, Math.round((firstActive.current / firstActive.goal) * 100));
+        if (chLabel) chLabel.textContent = firstActive.title;
+        if (chFill) chFill.style.width = pct + '%';
+        if (chPct) chPct.textContent = pct + '%';
+        if (chip) {
+          if (firstActive.completed && !firstActive.claimed) {
+            chip.classList.add('ready-to-claim');
+          } else {
+            chip.classList.remove('ready-to-claim');
+          }
+        }
+      }
+
+      // Render Modal list
+      const container = document.getElementById('quests-list-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      this.quests.forEach(q => {
+        const pct = Math.min(100, Math.round((q.current / q.goal) * 100));
+        const div = document.createElement('div');
+        div.className = 'quest-item' + (q.completed ? ' completed' : '');
+        
+        let actionBtnHtml = '';
+        if (q.claimed) {
+          actionBtnHtml = '<div class="quest-claimed-badge"><span>✓</span> Claimed</div>';
+        } else if (q.completed) {
+          actionBtnHtml = `<button class="quest-claim-btn" onclick="QuestsEngine.claim('${q.id}')"><span>🎁</span> Claim +${q.rewardXP} XP</button>`;
+        } else {
+          actionBtnHtml = `<div class="quest-sub">${Math.round(q.current)} / ${q.goal} ${q.unit}</div>`;
+        }
+
+        div.innerHTML = `
+          <div class="quest-item-top">
+            <div class="quest-info-row">
+              <div class="quest-icon">${q.icon}</div>
+              <div class="quest-texts">
+                <div class="quest-title">${q.title}</div>
+                <div class="quest-sub">${q.sub}</div>
+              </div>
+            </div>
+            <div class="quest-reward">+${q.rewardXP} XP</div>
+          </div>
+          <div class="quest-bar-bg">
+            <div class="quest-bar-fill" style="width:${pct}%;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:0.7rem; color:#a0aec0;">${pct}% complete</div>
+            ${actionBtnHtml}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+  };
+  window.QuestsEngine = QuestsEngine;
+
+  // ── Achievements Engine ─────────────────────────────────────
+  const AchievementsEngine = {
+    badges: [
+      { id: 'walk_50m', name: 'First Steps', cat: 'distance', icon: '🥾', desc: 'Walk your first 50 meters', xp: 25, req: 50, val: () => totalDistanceWalked },
+      { id: 'walk_500m', name: 'Urban Trekker', cat: 'distance', icon: '🏃', desc: 'Walk 500 meters exploring your city', xp: 50, req: 500, val: () => totalDistanceWalked },
+      { id: 'walk_2000m', name: 'Trailblazer', cat: 'distance', icon: '🚀', desc: 'Cover 2 kilometers on foot', xp: 150, req: 2000, val: () => totalDistanceWalked },
+      { id: 'walk_5000m', name: 'Ultra Nomad', cat: 'distance', icon: '⚡', desc: 'Walk 5 kilometers in TwoWords', xp: 300, req: 5000, val: () => totalDistanceWalked },
+      { id: 'ar_first', name: 'Lens Open', cat: 'ar', icon: '📷', desc: 'Activate Live AR Mode for the first time', xp: 25, req: 1, val: () => (hasUsedAR ? 1 : 0) },
+      { id: 'ar_cyber', name: 'Cyber Voyager', cat: 'ar', icon: '🏙️', desc: 'Explore the 3D procedural Cyber City', xp: 50, req: 1, val: () => (modesUsed.has('cyber') ? 1 : 0) },
+      { id: 'ar_street', name: '360° Prowler', cat: 'ar', icon: '🌐', desc: 'Launch Google Street View 360 mode', xp: 50, req: 1, val: () => (modesUsed.has('streetview') ? 1 : 0) },
+      { id: 'ar_satellite', name: 'Satellite Scout', cat: 'ar', icon: '🛰️', desc: 'Switch to Google Satellite 3D mode', xp: 50, req: 1, val: () => (modesUsed.has('satellite') ? 1 : 0) },
+      { id: 'social_match', name: 'Kindred Spirit', cat: 'social', icon: '👥', desc: 'Set an ambition and discover matches', xp: 50, req: 1, val: () => (hasFoundMatch ? 1 : 0) },
+      { id: 'social_meet', name: 'Rendezvous', cat: 'social', icon: '🤝', desc: 'Arrive within 15 meters of target match', xp: 150, req: 1, val: () => (hasCelebratedArrival ? 1 : 0) },
+      { id: 'poi_1', name: 'Local Explorer', cat: 'poi', icon: '🏛️', desc: 'Check in to your first local landmark', xp: 30, req: 1, val: () => checkedInPOIs.size },
+      { id: 'poi_5', name: 'City Cartographer', cat: 'poi', icon: '🗺️', desc: 'Check in to 5 distinct POIs', xp: 120, req: 5, val: () => checkedInPOIs.size },
+      { id: 'poi_10', name: 'Grand Tour', cat: 'poi', icon: '📍', desc: 'Check in to 10 distinct POIs across the globe', xp: 250, req: 10, val: () => checkedInPOIs.size },
+      { id: 'streak_1', name: 'Spark', cat: 'distance', icon: '🔥', desc: 'Complete your first daily challenge', xp: 50, req: 1, val: () => (streakDays >= 1 ? 1 : 0) },
+      { id: 'streak_3', name: 'Powerhouse', cat: 'distance', icon: '⚡', desc: 'Maintain a 3-day exploration streak', xp: 100, req: 3, val: () => streakDays },
+      { id: 'level_5', name: 'Legend', cat: 'social', icon: '👑', desc: 'Reach Explorer Level 5 in TwoWords', xp: 200, req: 5, val: () => playerLevel }
+    ],
+    unlockedIds: new Set(),
+    activeFilter: 'all',
+
+    init() {
+      try {
+        const saved = localStorage.getItem('tw_unlocked_badges');
+        if (saved) this.unlockedIds = new Set(JSON.parse(saved));
+      } catch(e) {}
+      this.check();
+      this.render();
+    },
+
+    save() {
+      try {
+        localStorage.setItem('tw_unlocked_badges', JSON.stringify([...this.unlockedIds]));
+      } catch(e) {}
+    },
+
+    check() {
+      let newlyUnlocked = false;
+      this.badges.forEach(b => {
+        if (!this.unlockedIds.has(b.id)) {
+          const v = b.val();
+          if (v >= b.req) {
+            this.unlockedIds.add(b.id);
+            newlyUnlocked = true;
+            this.unlockBanner(b);
+          }
+        }
+      });
+      if (newlyUnlocked) {
+        this.save();
+        this.render();
+      }
+    },
+
+    unlockBanner(b) {
+      if (AudioManager) AudioManager.playAchievement();
+      addXP(b.xp, 'Badge: ' + b.name + ' 🏆');
+      const toast = document.getElementById('achievement-toast');
+      const icon = document.getElementById('ach-toast-icon');
+      const title = document.getElementById('ach-toast-title');
+      const xp = document.getElementById('ach-toast-xp');
+      if (toast && title) {
+        if (icon) icon.textContent = b.icon;
+        title.textContent = b.name;
+        if (xp) xp.textContent = '+' + b.xp + ' XP';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+      }
+    },
+
+    render() {
+      const container = document.getElementById('badges-grid-container');
+      const summary = document.getElementById('achievements-summary-txt');
+      if (summary) {
+        const totalXp = this.badges.filter(b => this.unlockedIds.has(b.id)).reduce((acc, b) => acc + b.xp, 0);
+        summary.textContent = this.unlockedIds.size + ' of ' + this.badges.length + ' Unlocked · ' + totalXp + ' Achievement XP';
+      }
+      if (!container) return;
+      container.innerHTML = '';
+
+      const list = this.activeFilter === 'all' 
+        ? this.badges 
+        : this.badges.filter(b => b.cat === this.activeFilter);
+
+      list.forEach(b => {
+        const isUnlocked = this.unlockedIds.has(b.id);
+        const card = document.createElement('div');
+        card.className = 'badge-card ' + (isUnlocked ? 'unlocked' : 'locked');
+        card.innerHTML = `
+          <div class="badge-avatar">${b.icon}</div>
+          <div class="badge-name">${b.name}</div>
+          <div class="badge-desc">${b.desc}</div>
+          <div class="badge-val">${isUnlocked ? '✓ UNLOCKED' : '+' + b.xp + ' XP'}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+  };
+  window.AchievementsEngine = AchievementsEngine;
+
+  // ── Modal Open / Close Handlers ─────────────────────────────
+  function openQuestsModal() {
+    QuestsEngine.updateUI();
+    const modal = document.getElementById('quests-modal');
+    if (modal) modal.classList.add('active');
+  }
+  function closeQuestsModal() {
+    const modal = document.getElementById('quests-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function openAchievementsModal() {
+    AchievementsEngine.render();
+    const modal = document.getElementById('achievements-modal');
+    if (modal) modal.classList.add('active');
+  }
+  function closeAchievementsModal() {
+    const modal = document.getElementById('achievements-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function filterBadges(category, tabEl) {
+    AchievementsEngine.activeFilter = category;
+    document.querySelectorAll('.badges-filter-tab').forEach(t => t.classList.remove('active'));
+    if (tabEl) tabEl.classList.add('active');
+    AchievementsEngine.render();
+  }
+
+  function openFitnessModal() {
+    const modal = document.getElementById('fitness-modal');
+    if (modal) modal.classList.add('active');
+  }
+  function closeFitnessModal() {
+    const modal = document.getElementById('fitness-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function toggleWalkTrail(forceState) {
+    if (forceState !== undefined) {
+      isWalkTrailVisible = forceState;
+    } else {
+      isWalkTrailVisible = !isWalkTrailVisible;
+    }
+    if (walkTrailPolyline && map) {
+      if (isWalkTrailVisible) {
+        if (!map.hasLayer(walkTrailPolyline)) map.addLayer(walkTrailPolyline);
+        walkTrailPolyline.setLatLngs(playerWalkTrail);
+      } else {
+        if (map.hasLayer(walkTrailPolyline)) map.removeLayer(walkTrailPolyline);
+      }
+    }
+    const btn = document.getElementById('modal-trail-btn');
+    if (btn) btn.textContent = isWalkTrailVisible ? '👣 Toggle Walk Trail on Map (Active)' : '👣 Toggle Walk Trail on Map (Hidden)';
+    const chk = document.getElementById('pref-trail-checkbox');
+    if (chk) chk.checked = isWalkTrailVisible;
+    showFloatingXPNotification(isWalkTrailVisible ? 'Trail Shown' : 'Trail Hidden', 'Map Walk History');
+  }
+
+  // ── POI Check-in Implementation ─────────────────────────────
+  function checkInPOI(poiId, poiName) {
+    if (checkedInPOIs.has(poiId)) return;
+    checkedInPOIs.add(poiId);
+    try {
+      localStorage.setItem('tw_checked_pois', JSON.stringify([...checkedInPOIs]));
+    } catch(e) {}
+
+    let xpAmount = 25;
+    if (gameDifficulty === 'casual') xpAmount = Math.round(xpAmount * 1.5);
+    if (gameDifficulty === 'hardcore') xpAmount = Math.round(xpAmount * 0.8);
+
+    addXP(xpAmount, 'Checked In: ' + poiName + ' 📍');
+    if (AudioManager) AudioManager.playXpClaim();
+
+    // Progress quests & achievements
+    QuestsEngine.onPOICheckin();
+    AchievementsEngine.check();
+
+    // Refresh Map POIs to show checked-in state
+    updateMapPOIs();
+    if (map) map.closePopup();
+  }
+
+  function onGameDifficultyChange(diff) {
+    gameDifficulty = diff;
+    try { localStorage.setItem('tw_game_difficulty', diff); } catch(e) {}
+    showFloatingXPNotification(diff.toUpperCase() + ' Mode', 'Game difficulty updated');
+    updateMapPOIs();
+  }
+
+  // Track AR exploration time for quests
+  setInterval(() => {
+    if (isArActive) {
+      hasUsedAR = true;
+      arTimeSeconds++;
+      if (currentARMode) modesUsed.add(currentARMode);
+      if (QuestsEngine) QuestsEngine.onARTick();
+      if (AchievementsEngine) AchievementsEngine.check();
+    }
+  }, 1000);
+
+  // Hook into arrival proximity for quest & achievement
+  const _origCheckProximityTrigger = window.checkProximityTrigger || checkProximityTrigger;
+  window.checkProximityTrigger = function(dist) {
+    if (typeof _origCheckProximityTrigger === 'function') _origCheckProximityTrigger(dist);
+    if (dist <= 25 && QuestsEngine) QuestsEngine.onMatchProximity();
+    if (dist <= 15 && AchievementsEngine) AchievementsEngine.check();
+  };
+
+  // Expose methods on window
+  window.openQuestsModal = openQuestsModal;
+  window.closeQuestsModal = closeQuestsModal;
+  window.openAchievementsModal = openAchievementsModal;
+  window.closeAchievementsModal = closeAchievementsModal;
+  window.filterBadges = filterBadges;
+  window.openFitnessModal = openFitnessModal;
+  window.closeFitnessModal = closeFitnessModal;
+  window.toggleWalkTrail = toggleWalkTrail;
+  window.checkInPOI = checkInPOI;
+  window.onGameDifficultyChange = onGameDifficultyChange;
+
+  // Initialize Engines on load
+  setTimeout(() => {
+    QuestsEngine.init();
+    AchievementsEngine.init();
+    const diffSelect = document.getElementById('game-difficulty-select');
+    if (diffSelect) diffSelect.value = gameDifficulty;
+  }, 500);
+
+
+</script>
+
+
+
+<script id="vera-ai-system">
+// ============================================================
+// VERA — TwoWords AI Guide + Full Speech Recognition System
+// ============================================================
+// VERA is the always-present AI companion:
+//   - Floating orb UI that pulses when listening/speaking
+//   - Web Speech API recognition (works in Chrome/Android)
+//   - Sends voice/text to /api/ai/chat (Gemini backend)
+//   - Text-to-speech (SpeechSynthesis) so VERA can speak back
+//   - Voice commands map to app actions
+//   - Context-aware: knows player words, location, AR mode, match target
+//   - Collapsible chat history
+// ============================================================
+
+(function() {
+  'use strict';
+
+  // ── State ────────────────────────────────────────────────────────────────────
+  let veraSessionId   = 'vera_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+  let veraListening   = false;
+  let veraSpeaking    = false;
+  let veraOpen        = false;
+  let veraRecognition = null;
+  let veraSynth       = window.speechSynthesis || null;
+  let veraVoice       = null;
+  let veraHistory     = []; // [{role:'vera'|'user', text:string}]
+  let veraTypingTimer = null;
+  let veraMicAvailable = ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  let veraLastWords   = '';
+  let veraOrb         = null;
+  let veraInitialized = false;
+
+  // ── Voice selection (prefer a female voice) ────────────────────────────────
+  function pickVoice() {
+    if (!veraSynth) return;
+    const voices = veraSynth.getVoices();
+    const preferred = ['Samantha', 'Google UK English Female', 'Google US English', 'en-US', 'en-GB', 'en'];
+    for (const pref of preferred) {
+      const v = voices.find(v2 =>
+        v2.name.includes(pref) || v2.lang.startsWith(pref)
+      );
+      if (v) { veraVoice = v; return; }
+    }
+    veraVoice = voices[0] || null;
+  }
+
+  if (veraSynth) {
+    pickVoice();
+    veraSynth.onvoiceschanged = pickVoice;
+  }
+
+  // ── Build VERA HTML UI ────────────────────────────────────────────────────
+  function buildVeraUI() {
+    if (document.getElementById('vera-orb')) return;
+
+    const css = `
+      /* VERA AI Orb + Panel */
+      #vera-orb {
+        position: fixed;
+        bottom: 90px;
+        left: 18px;
+        z-index: 99998;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #ff3366 100%);
+        box-shadow: 0 0 0 0 rgba(0,212,255,0.5), 0 8px 24px rgba(0,0,0,0.7);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      #vera-orb:hover { transform: scale(1.1); }
+      #vera-orb.vera-listening {
+        animation: veraPulse 1s ease-in-out infinite;
+        box-shadow: 0 0 0 8px rgba(0,229,255,0.25), 0 0 40px rgba(0,229,255,0.6), 0 8px 24px rgba(0,0,0,0.7);
+      }
+      #vera-orb.vera-speaking {
+        animation: veraSpeakPulse 0.6s ease-in-out infinite;
+        box-shadow: 0 0 0 6px rgba(168,85,247,0.3), 0 0 30px rgba(168,85,247,0.5), 0 8px 24px rgba(0,0,0,0.7);
+      }
+      @keyframes veraPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0.5), 0 8px 24px rgba(0,0,0,0.7); }
+        50%       { box-shadow: 0 0 0 14px rgba(0,229,255,0.0), 0 8px 24px rgba(0,0,0,0.7); }
+      }
+      @keyframes veraSpeakPulse {
+        0%, 100% { transform: scale(1); }
+        50%       { transform: scale(1.06); }
+      }
+
+      #vera-panel {
+        position: fixed;
+        bottom: 158px;
+        left: 12px;
+        z-index: 99997;
+        width: 320px;
+        max-width: calc(100vw - 24px);
+        background: rgba(10, 12, 22, 0.97);
+        backdrop-filter: blur(24px);
+        border: 1.5px solid rgba(0,212,255,0.3);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(0,212,255,0.1);
+        display: none;
+        flex-direction: column;
+        max-height: 480px;
+        transform-origin: bottom left;
+        animation: veraOpen 0.22s cubic-bezier(0.16,1,0.3,1);
+      }
+      @keyframes veraOpen {
+        from { opacity:0; transform: scale(0.88) translateY(12px); }
+        to   { opacity:1; transform: scale(1) translateY(0); }
+      }
+      #vera-panel.open { display: flex; }
+
+      .vera-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        flex-shrink: 0;
+      }
+      .vera-avatar-mini {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#00d4ff,#a855f7,#ff3366);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+        position: relative;
+      }
+      .vera-status-dot {
+        position: absolute;
+        bottom: 0; right: 0;
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: #00ff99;
+        border: 2px solid rgba(10,12,22,0.97);
+        box-shadow: 0 0 6px #00ff99;
+      }
+      .vera-name {
+        font-size: 0.88rem;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: 0.04em;
+      }
+      .vera-sub {
+        font-size: 0.68rem;
+        color: rgba(255,255,255,0.45);
+        font-weight: 500;
+        margin-top: 1px;
+      }
+      .vera-close-btn {
+        margin-left: auto;
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        border: none;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+        flex-shrink: 0;
+      }
+      .vera-close-btn:hover { background: rgba(255,80,80,0.3); }
+
+      .vera-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,212,255,0.3) transparent;
+      }
+      .vera-messages::-webkit-scrollbar { width: 4px; }
+      .vera-messages::-webkit-scrollbar-track { background: transparent; }
+      .vera-messages::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.25); border-radius: 4px; }
+
+      .vera-msg {
+        display: flex;
+        gap: 8px;
+        max-width: 100%;
+        animation: veraMsgIn 0.2s ease;
+      }
+      @keyframes veraMsgIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+      .vera-msg.vera-msg-user { flex-direction: row-reverse; }
+      .vera-bubble {
+        max-width: 82%;
+        padding: 9px 13px;
+        border-radius: 16px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        line-height: 1.45;
+        word-break: break-word;
+      }
+      .vera-msg-vera .vera-bubble {
+        background: rgba(0,212,255,0.1);
+        border: 1px solid rgba(0,212,255,0.2);
+        color: #e8f4ff;
+        border-bottom-left-radius: 4px;
+      }
+      .vera-msg-user .vera-bubble {
+        background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(168,85,247,0.2));
+        border: 1px solid rgba(168,85,247,0.25);
+        color: #fff;
+        border-bottom-right-radius: 4px;
+      }
+      .vera-typing {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        padding: 8px 13px;
+        background: rgba(0,212,255,0.06);
+        border: 1px solid rgba(0,212,255,0.12);
+        border-radius: 16px;
+        border-bottom-left-radius: 4px;
+        width: fit-content;
+      }
+      .vera-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: rgba(0,229,255,0.6);
+        animation: veraDot 1.2s ease-in-out infinite;
+      }
+      .vera-dot:nth-child(2) { animation-delay: 0.2s; }
+      .vera-dot:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes veraDot {
+        0%,80%,100% { transform: scale(1); opacity:0.4; }
+        40%         { transform: scale(1.4); opacity:1; }
+      }
+
+      .vera-input-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px 12px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+        flex-shrink: 0;
+      }
+      #vera-text-input {
+        flex: 1;
+        background: rgba(255,255,255,0.06);
+        border: 1.5px solid rgba(255,255,255,0.12);
+        border-radius: 22px;
+        padding: 9px 14px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #fff;
+        outline: none;
+        font-family: inherit;
+        transition: border-color 0.2s;
+      }
+      #vera-text-input:focus { border-color: rgba(0,229,255,0.5); }
+      #vera-text-input::placeholder { color: rgba(255,255,255,0.3); }
+      .vera-mic-btn, .vera-send-btn {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+      .vera-mic-btn {
+        background: rgba(0,229,255,0.12);
+        color: #00e5ff;
+        border: 1.5px solid rgba(0,229,255,0.3);
+      }
+      .vera-mic-btn:hover { background: rgba(0,229,255,0.25); transform: scale(1.08); }
+      .vera-mic-btn.vera-active-mic {
+        background: rgba(255,50,50,0.2);
+        border-color: rgba(255,80,80,0.6);
+        color: #ff6060;
+        animation: veraMicPulse 1s infinite;
+      }
+      @keyframes veraMicPulse {
+        0%,100% { box-shadow: 0 0 0 0 rgba(255,80,80,0.4); }
+        50%     { box-shadow: 0 0 0 8px rgba(255,80,80,0); }
+      }
+      .vera-send-btn {
+        background: linear-gradient(135deg,#00d4ff,#a855f7);
+        color: #fff;
+      }
+      .vera-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 16px rgba(0,212,255,0.5); }
+
+      .vera-quick-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 0 14px 10px;
+        flex-shrink: 0;
+      }
+      .vera-chip {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 20px;
+        padding: 5px 11px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.7);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+        user-select: none;
+      }
+      .vera-chip:hover {
+        background: rgba(0,212,255,0.15);
+        border-color: rgba(0,212,255,0.4);
+        color: #fff;
+      }
+
+      /* Mic permission banner */
+      #vera-mic-banner {
+        position: fixed;
+        top: 68px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 99999;
+        background: rgba(10,12,22,0.97);
+        border: 1.5px solid rgba(0,229,255,0.3);
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #fff;
+        display: none;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+        white-space: nowrap;
+        max-width: calc(100vw - 40px);
+      }
+      #vera-mic-banner.show { display: flex; }
+
+      /* Live transcription overlay */
+      #vera-transcript-banner {
+        position: fixed;
+        bottom: 160px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 99998;
+        background: rgba(0,0,0,0.75);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(0,229,255,0.3);
+        border-radius: 24px;
+        padding: 10px 20px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #00e5ff;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+        max-width: calc(100vw - 40px);
+        text-align: center;
+        pointer-events: none;
+      }
+      #vera-transcript-banner.show { display: flex; }
+    `;
+
+    const style = document.createElement('style');
+    style.id = 'vera-styles';
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    // Orb
+    const orb = document.createElement('div');
+    orb.id = 'vera-orb';
+    orb.innerHTML = '🤖';
+    orb.title = 'VERA — Your AI Guide';
+    orb.addEventListener('click', toggleVeraPanel);
+    document.body.appendChild(orb);
+    veraOrb = orb;
+
+    // Panel
+    const panel = document.createElement('div');
+    panel.id = 'vera-panel';
+    panel.innerHTML = `
+      <div class="vera-header">
+        <div class="vera-avatar-mini">
+          🤖
+          <div class="vera-status-dot"></div>
+        </div>
+        <div>
+          <div class="vera-name">VERA</div>
+          <div class="vera-sub" id="vera-status-label">Your TwoWords Guide · Always here</div>
+        </div>
+        <button class="vera-close-btn" onclick="window.toggleVeraPanel()">✕</button>
+      </div>
+      <div class="vera-messages" id="vera-messages"></div>
+      <div class="vera-quick-chips" id="vera-chips">
+        <span class="vera-chip" data-q="What can you help me with?">What can you do?</span>
+        <span class="vera-chip" data-q="Show me events nearby for my two words">Events nearby</span>
+        <span class="vera-chip" data-q="Who else has my two words?">Find people</span>
+        <span class="vera-chip" data-q="Give me a challenge for my two words">Daily challenge</span>
+        <span class="vera-chip" data-q="Navigate me to my match">Navigate →</span>
+      </div>
+      <div class="vera-input-row">
+        <input type="text" id="vera-text-input" placeholder="Ask VERA anything..." autocomplete="off" enterkeyhint="send" />
+        <button class="vera-mic-btn" id="vera-mic-btn" title="Hold to speak">🎤</button>
+        <button class="vera-send-btn" id="vera-send-btn" title="Send">➤</button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    // Mic permission banner
+    const micBanner = document.createElement('div');
+    micBanner.id = 'vera-mic-banner';
+    micBanner.innerHTML = '🎤 <span>Tap the microphone to speak to VERA</span>';
+    document.body.appendChild(micBanner);
+
+    // Transcript banner
+    const transcriptBanner = document.createElement('div');
+    transcriptBanner.id = 'vera-transcript-banner';
+    transcriptBanner.innerHTML = '🎙️ <span id="vera-transcript-text">Listening...</span>';
+    document.body.appendChild(transcriptBanner);
+
+    // Wire chip clicks
+    panel.querySelectorAll('.vera-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const q = chip.getAttribute('data-q');
+        if (q) sendVeraMessage(q);
+      });
+    });
+
+    // Wire send button + enter key
+    const input = panel.querySelector('#vera-text-input');
+    const sendBtn = panel.querySelector('#vera-send-btn');
+    sendBtn.addEventListener('click', () => {
+      const msg = input.value.trim();
+      if (msg) { sendVeraMessage(msg); input.value = ''; }
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const msg = input.value.trim();
+        if (msg) { sendVeraMessage(msg); input.value = ''; }
+      }
+    });
+
+    // Wire mic button
+    const micBtn = panel.querySelector('#vera-mic-btn');
+    micBtn.addEventListener('click', toggleVeraMic);
+
+    veraInitialized = true;
+  }
+
+  // ── Panel toggle ──────────────────────────────────────────────────────────
+  function toggleVeraPanel() {
+    const panel = document.getElementById('vera-panel');
+    if (!panel) return;
+    veraOpen = !veraOpen;
+    panel.classList.toggle('open', veraOpen);
+
+    // First open — show greeting if no history
+    if (veraOpen && veraHistory.length === 0) {
+      showVeraGreeting();
+    }
+    // Scroll to bottom
+    if (veraOpen) {
+      setTimeout(() => {
+        const msgs = document.getElementById('vera-messages');
+        if (msgs) msgs.scrollTop = msgs.scrollHeight;
+      }, 50);
+    }
+  }
+  window.toggleVeraPanel = toggleVeraPanel;
+
+  // ── Greet player ─────────────────────────────────────────────────────────
+  async function showVeraGreeting() {
+    const ctx = getVeraContext();
+    showVeraThinking();
+    try {
+      const res = await fetch('/api/ai/greet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word1: ctx.word1, word2: ctx.word2, city: ctx.city })
+      });
+      const data = await res.json();
+      hideVeraThinking();
+      if (data.text) {
+        appendVeraMessage('vera', data.text);
+        veraSpeak(data.text);
+        if (data.action) executeVeraAction(data.action, data.text);
+      }
+    } catch (e) {
+      hideVeraThinking();
+      const welcome = 'Hey! I am VERA, your TwoWords AI guide. Ask me anything about your words, find events, discover people, or just chat. Tap 🎤 to speak to me!';
+      appendVeraMessage('vera', welcome);
+      veraSpeak(welcome);
+    }
+  }
+
+  // ── Send message to VERA ─────────────────────────────────────────────────
+  async function sendVeraMessage(message) {
+    if (!message || !message.trim()) return;
+    message = message.trim();
+
+    appendVeraMessage('user', message);
+    showVeraThinking();
+
+    const ctx = getVeraContext();
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: veraSessionId,
+          message,
+          context: ctx
+        })
+      });
+      const data = await res.json();
+      hideVeraThinking();
+      const reply = data.text || 'I am here! Ask me anything about your ' + ctx.word1 + ' ' + ctx.word2 + ' journey.';
+      appendVeraMessage('vera', reply);
+      veraSpeak(reply);
+      if (data.action) executeVeraAction(data.action, reply);
+    } catch (e) {
+      hideVeraThinking();
+      const fallback = 'I am thinking... are you still with me? Try asking again!';
+      appendVeraMessage('vera', fallback);
+    }
+
+    // Auto-open if closed
+    if (!veraOpen) {
+      const panel = document.getElementById('vera-panel');
+      if (panel) { veraOpen = true; panel.classList.add('open'); }
+    }
+  }
+  window.sendVeraMessage = sendVeraMessage;
+
+  // ── Build context object from current app state ───────────────────────────
+  function getVeraContext() {
+    const w1 = (window.currentAmbition && window.currentAmbition.word1) || 'PLAY';
+    const w2 = (window.currentAmbition && window.currentAmbition.word2) || 'GOLF';
+    const city = window.cityName || 'your city';
+    const arMode = window.currentARMode || 'Map View';
+    const matchName = (window.activeMatch && window.activeMatch.name) || '';
+    const distToMatch = (window.activeMatch && typeof window.lastDistM !== 'undefined') ? window.lastDistM : null;
+    const lat  = window.playerLat || null;
+    const lon  = window.playerLon || null;
+    return { word1: w1, word2: w2, city, arMode, matchName, distToMatch, lat, lon };
+  }
+
+  // ── Execute action commands from VERA ────────────────────────────────────
+  function executeVeraAction(action, speech) {
+    const delay = Math.min(1200, (speech || '').length * 18);
+    setTimeout(() => {
+      switch (action) {
+        case 'OPEN_UNIVERSE':
+          if (typeof window.openUniversePanel === 'function') window.openUniversePanel();
+          break;
+        case 'OPEN_MATCHES':
+          if (typeof window.openMatchesModal === 'function') window.openMatchesModal();
+          break;
+        case 'OPEN_CHAT':
+          if (typeof window.openChatModal === 'function') window.openChatModal();
+          break;
+        case 'TOGGLE_AR':
+          if (typeof window.toggleLiveARMode === 'function') window.toggleLiveARMode();
+          break;
+        case 'RECENTER_MAP':
+          if (typeof window.recenterMap === 'function') window.recenterMap();
+          break;
+        case 'SHOW_EVENTS':
+          if (typeof window.openUniversePanel === 'function') {
+            window.openUniversePanel();
+            setTimeout(() => {
+              if (typeof window.switchUniverseTab === 'function') window.switchUniverseTab('places');
+            }, 300);
+          }
+          break;
+      }
+    }, delay);
+  }
+
+  // ── Message bubble rendering ─────────────────────────────────────────────
+  function appendVeraMessage(role, text) {
+    const container = document.getElementById('vera-messages');
+    if (!container) return;
+    veraHistory.push({ role, text });
+
+    const div = document.createElement('div');
+    div.className = 'vera-msg vera-msg-' + role;
+    div.innerHTML = '<div class="vera-bubble">' + escapeHtml(text) + '</div>';
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Typing indicator
+  function showVeraThinking() {
+    const container = document.getElementById('vera-messages');
+    if (!container || document.getElementById('vera-typing-indicator')) return;
+    const div = document.createElement('div');
+    div.className = 'vera-msg vera-msg-vera';
+    div.id = 'vera-typing-indicator';
+    div.innerHTML = '<div class="vera-typing"><div class="vera-dot"></div><div class="vera-dot"></div><div class="vera-dot"></div></div>';
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+
+    // Update status label
+    const label = document.getElementById('vera-status-label');
+    if (label) label.textContent = 'VERA is thinking...';
+  }
+
+  function hideVeraThinking() {
+    const el = document.getElementById('vera-typing-indicator');
+    if (el) el.remove();
+    const label = document.getElementById('vera-status-label');
+    if (label) label.textContent = 'Your TwoWords Guide · Always here';
+  }
+
+  // ── Text-to-Speech ────────────────────────────────────────────────────────
+  function veraSpeak(text) {
+    if (!veraSynth) return;
+    if (!text) return;
+    veraSynth.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice  = veraVoice;
+    utterance.rate   = 1.0;
+    utterance.pitch  = 1.1;
+    utterance.volume = 0.92;
+
+    utterance.onstart = () => {
+      veraSpeaking = true;
+      if (veraOrb) veraOrb.classList.add('vera-speaking');
+      const label = document.getElementById('vera-status-label');
+      if (label) label.textContent = 'VERA is speaking...';
+    };
+    utterance.onend = () => {
+      veraSpeaking = false;
+      if (veraOrb) veraOrb.classList.remove('vera-speaking');
+      const label = document.getElementById('vera-status-label');
+      if (label) label.textContent = 'Your TwoWords Guide · Always here';
+    };
+
+    veraSynth.speak(utterance);
+  }
+  window.veraSpeak = veraSpeak;
+
+  // ── Speech Recognition ────────────────────────────────────────────────────
+  function initSpeechRecognition() {
+    if (!veraMicAvailable) return;
+    const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+    veraRecognition = new SRClass();
+    veraRecognition.continuous    = false;
+    veraRecognition.interimResults = true;
+    veraRecognition.lang          = 'en-US';
+    veraRecognition.maxAlternatives = 1;
+
+    veraRecognition.onstart = () => {
+      veraListening = true;
+      if (veraOrb) veraOrb.classList.add('vera-listening');
+      const micBtn = document.getElementById('vera-mic-btn');
+      if (micBtn) micBtn.classList.add('vera-active-mic');
+      const banner = document.getElementById('vera-transcript-banner');
+      if (banner) banner.classList.add('show');
+      const label = document.getElementById('vera-status-label');
+      if (label) label.textContent = '🎤 Listening...';
+    };
+
+    veraRecognition.onresult = (event) => {
+      let interim = '';
+      let final   = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) final += t;
+        else interim += t;
+      }
+      const text = final || interim;
+      if (text) {
+        const transcriptEl = document.getElementById('vera-transcript-text');
+        if (transcriptEl) transcriptEl.textContent = '"' + text + '"';
+      }
+      if (final) veraLastWords = final;
+    };
+
+    veraRecognition.onend = () => {
+      veraListening = false;
+      if (veraOrb) veraOrb.classList.remove('vera-listening');
+      const micBtn = document.getElementById('vera-mic-btn');
+      if (micBtn) micBtn.classList.remove('vera-active-mic');
+      const banner = document.getElementById('vera-transcript-banner');
+      if (banner) banner.classList.remove('show');
+      const label = document.getElementById('vera-status-label');
+      if (label) label.textContent = 'Your TwoWords Guide · Always here';
+
+      if (veraLastWords && veraLastWords.trim()) {
+        const text = veraLastWords.trim();
+        veraLastWords = '';
+
+        // Also put in text input for visibility
+        const input = document.getElementById('vera-text-input');
+        if (input) input.value = text;
+
+        // Open panel if closed
+        if (!veraOpen) toggleVeraPanel();
+        sendVeraMessage(text);
+        if (input) input.value = '';
+      }
+    };
+
+    veraRecognition.onerror = (event) => {
+      veraListening = false;
+      if (veraOrb) veraOrb.classList.remove('vera-listening');
+      const micBtn = document.getElementById('vera-mic-btn');
+      if (micBtn) micBtn.classList.remove('vera-active-mic');
+      const banner = document.getElementById('vera-transcript-banner');
+      if (banner) banner.classList.remove('show');
+
+      if (event.error === 'not-allowed') {
+        appendVeraMessage('vera', '🚫 Microphone access denied. Please allow mic permissions in your browser settings, then try again.');
+      } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        console.warn('[VERA] Speech error:', event.error);
+      }
+    };
+  }
+
+  function toggleVeraMic() {
+    if (!veraMicAvailable) {
+      appendVeraMessage('vera', 'Voice recognition is not available in this browser. Try Chrome on Android or desktop!');
+      if (!veraOpen) toggleVeraPanel();
+      return;
+    }
+
+    if (!veraRecognition) initSpeechRecognition();
+
+    if (veraListening) {
+      veraRecognition.stop();
+    } else {
+      veraLastWords = '';
+      try {
+        veraRecognition.start();
+      } catch (e) {
+        // If already started, restart
+        try { veraRecognition.abort(); } catch(_) {}
+        setTimeout(() => {
+          try { veraRecognition.start(); } catch(_) {}
+        }, 100);
+      }
+    }
+  }
+  window.toggleVeraMic = toggleVeraMic;
+
+  // ── Global voice activation: long-press anywhere for 600ms ───────────────
+  let globalHoldTimer = null;
+  document.addEventListener('pointerdown', (e) => {
+    // Ignore clicks on interactive elements
+    if (e.target.closest('button, input, select, a, [onclick], #vera-panel, .vera-chip')) return;
+    globalHoldTimer = setTimeout(() => {
+      if (!veraOpen) toggleVeraPanel();
+      toggleVeraMic();
+    }, 600);
+  });
+  document.addEventListener('pointerup',     () => clearTimeout(globalHoldTimer));
+  document.addEventListener('pointercancel', () => clearTimeout(globalHoldTimer));
+  document.addEventListener('pointermove',   () => clearTimeout(globalHoldTimer));
+
+  // ── Voice command keywords (works even without panel open) ───────────────
+  // These are intercepted from the speech recognition globally:
+  // "Hey VERA", "VERA navigate", "VERA show matches", etc.
+  function processGlobalVoiceCommand(text) {
+    const lower = text.toLowerCase();
+    // VERA wake word detection
+    if (lower.includes('vera') || lower.includes('hey v')) {
+      if (!veraOpen) toggleVeraPanel();
+      sendVeraMessage(text);
+      return true;
+    }
+    // Direct commands
+    if (lower.match(/\b(navigate|go to match|find match)\b/)) {
+      sendVeraMessage('Navigate me to my match'); return true;
+    }
+    if (lower.match(/\b(show events|nearby events|what.s nearby)\b/)) {
+      sendVeraMessage('What events are nearby for my two words?'); return true;
+    }
+    if (lower.match(/\b(open universe|show universe)\b/)) {
+      if (typeof window.openUniversePanel === 'function') window.openUniversePanel();
+      return true;
+    }
+    if (lower.match(/\b(show matches|nearby people|who.s nearby)\b/)) {
+      if (typeof window.openMatchesModal === 'function') window.openMatchesModal();
+      return true;
+    }
+    if (lower.match(/\b(open ar|augmented reality|live view)\b/)) {
+      if (typeof window.toggleLiveARMode === 'function') window.toggleLiveARMode();
+      return true;
+    }
+    return false;
+  }
+
+  // ── Nudge notification (VERA proactively speaks) ──────────────────────────
+  function veraNudge(message) {
+    // Show a floating nudge without opening the panel
+    let nudge = document.getElementById('vera-nudge');
+    if (!nudge) {
+      nudge = document.createElement('div');
+      nudge.id = 'vera-nudge';
+      nudge.style.cssText = `
+        position:fixed; bottom:162px; left:80px; z-index:99997;
+        background:rgba(10,12,22,0.97); border:1.5px solid rgba(0,212,255,0.3);
+        border-radius:16px; padding:10px 14px; font-size:0.8rem; font-weight:600;
+        color:#fff; max-width:220px; line-height:1.4; box-shadow:0 8px 30px rgba(0,0,0,0.7);
+        display:none; cursor:pointer;
+      `;
+      document.body.appendChild(nudge);
+      nudge.addEventListener('click', () => {
+        nudge.style.display = 'none';
+        if (!veraOpen) toggleVeraPanel();
+      });
+    }
+    nudge.textContent = '🤖 VERA: ' + message;
+    nudge.style.display = 'block';
+    veraSpeak(message);
+    appendVeraMessage('vera', message);
+
+    clearTimeout(window._veraNudgeTimer);
+    window._veraNudgeTimer = setTimeout(() => { nudge.style.display = 'none'; }, 8000);
+  }
+  window.veraNudge = veraNudge;
+
+  // ── App event hooks: VERA reacts to app state changes ───────────────────
+  function hookAppEvents() {
+    // When user saves new two words
+    const origSaveAmbition = window.saveAmbition;
+    if (typeof origSaveAmbition === 'function') {
+      window.saveAmbition = function() {
+        const result = origSaveAmbition.apply(this, arguments);
+        setTimeout(() => {
+          const ctx = getVeraContext();
+          if (ctx.word1 && ctx.word2) {
+            sendVeraMessage('I just set my two words to ' + ctx.word1 + ' ' + ctx.word2 + '. What should I know?');
+          }
+        }, 800);
+        return result;
+      };
+    }
+
+    // When AR mode opens, VERA gives a brief navigation tip
+    const origToggleAR = window.toggleLiveARMode;
+    if (typeof origToggleAR === 'function') {
+      window.toggleLiveARMode = function() {
+        const result = origToggleAR.apply(this, arguments);
+        setTimeout(() => {
+          const ctx = getVeraContext();
+          if (ctx.matchName) {
+            veraNudge(ctx.matchName + ' is ' + (ctx.distToMatch ? Math.round(ctx.distToMatch) + 'm' : 'nearby') + ' — keep moving!');
+          }
+        }, 1200);
+        return result;
+      };
+    }
+  }
+
+  // ── Initialize ────────────────────────────────────────────────────────────
+  function initVERA() {
+    buildVeraUI();
+    initSpeechRecognition();
+
+    // Hook app events after a short delay (ensure app is loaded)
+    setTimeout(hookAppEvents, 2000);
+
+    // First nudge after 5 seconds
+    setTimeout(() => {
+      const ctx = getVeraContext();
+      veraNudge('Ready to explore ' + ctx.word1 + ' ' + ctx.word2 + '? Tap me anytime!');
+    }, 5000);
+
+    console.log('[VERA] AI Guide initialized. Session:', veraSessionId);
+  }
+
+  
+  // Wait for DOM to be fully ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVERA);
+  } else {
+    // Delay slightly so app JS runs first
+    setTimeout(initVERA, 500);
+  }
+
+  // Expose public API
+  window.VERA = {
+    send:   sendVeraMessage,
+    speak:  veraSpeak,
+    nudge:  veraNudge,
+    toggle: toggleVeraPanel,
+    mic:    toggleVeraMic,
+    context: getVeraContext,
+    sessionId: () => veraSessionId
+  };
+
+})();
 
 </script>
 
