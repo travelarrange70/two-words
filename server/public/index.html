@@ -1138,6 +1138,98 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
 .dash-log-time { color: #64748b; margin-right: 6px; }
 .dash-log-feed { color: #a855f7; font-weight: 700; margin-right: 6px; }
 
+
+/* ============================================================
+   TRACK A: POI CATEGORY FILTER STRIP (Over Map)
+   ============================================================ */
+#map-filter-strip {
+  position: absolute; top: 116px; left: 16px; right: 16px; z-index: 9999;
+  display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; pointer-events: auto; padding-bottom: 4px;
+}
+#map-filter-strip::-webkit-scrollbar { display: none; }
+.poi-filter-chip {
+  flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px; font-size: 0.72rem; font-weight: 800;
+  color: rgba(255,255,255,0.8); cursor: pointer; transition: all 0.2s ease;
+  background: rgba(10,14,24,0.85); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  white-space: nowrap; user-select: none;
+}
+.poi-filter-chip:hover { background: rgba(0,229,255,0.15); border-color: rgba(0,229,255,0.5); color: #fff; }
+.poi-filter-chip.active {
+  background: linear-gradient(135deg, rgba(0,229,255,0.25) 0%, rgba(26,115,232,0.3) 100%);
+  border-color: #00e5ff; color: #00e5ff; box-shadow: 0 0 16px rgba(0,229,255,0.35);
+}
+
+/* ============================================================
+   TRACK B: GYRO / COMPASS FIGURE-8 CALIBRATION MODAL
+   ============================================================ */
+#calib-modal {
+  position: fixed; inset: 0; z-index: 99995; background: rgba(3,3,8,0.92);
+  backdrop-filter: blur(24px); display: none; align-items: center; justify-content: center; padding: 20px;
+}
+#calib-modal.active { display: flex; }
+.calib-card {
+  background: rgba(14,18,28,0.98); border: 1.5px solid rgba(0,229,255,0.35);
+  border-radius: 28px; padding: 28px 24px; max-width: 380px; width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,229,255,0.2);
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px;
+}
+.calib-fig8-anim {
+  width: 140px; height: 90px; position: relative; margin: 10px 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.fig8-path {
+  width: 120px; height: 70px; border: 3px dashed rgba(0,229,255,0.4);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  transform: rotate(-25deg); animation: pulseFig8 2s infinite ease-in-out;
+}
+@keyframes pulseFig8 {
+  0%, 100% { transform: rotate(-25deg) scale(0.95); border-color: rgba(0,229,255,0.3); }
+  50% { transform: rotate(25deg) scale(1.05); border-color: #00ff99; }
+}
+
+/* ============================================================
+   TRACK C: MAP LAYER SWITCHER PILL & TURN-BY-TURN MANEUVER HUD
+   ============================================================ */
+#map-layer-switcher {
+  position: absolute; bottom: 85px; left: 16px; z-index: 10000;
+  display: flex; gap: 4px; background: rgba(10,14,24,0.88); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; padding: 4px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+.map-style-btn {
+  padding: 6px 12px; border-radius: 18px; border: none; background: transparent;
+  color: rgba(255,255,255,0.7); font-size: 0.72rem; font-weight: 800; cursor: pointer;
+  transition: all 0.2s ease; display: flex; align-items: center; gap: 4px;
+}
+.map-style-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.map-style-btn.active {
+  background: linear-gradient(135deg, #1a73e8, #00e5ff); color: #fff;
+  box-shadow: 0 2px 10px rgba(0,229,255,0.4);
+}
+
+.ar-maneuver-hud {
+  position: absolute; top: 126px; left: 50%; transform: translateX(-50%); z-index: 30;
+  background: rgba(10,14,26,0.92); backdrop-filter: blur(18px);
+  border: 1.5px solid rgba(0,255,153,0.4); border-radius: 20px;
+  padding: 8px 18px; color: #fff; display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.6), 0 0 20px rgba(0,255,153,0.2);
+  pointer-events: none; animation: slideDownNav 0.35s ease;
+}
+.maneuver-icon { font-size: 1.5rem; filter: drop-shadow(0 0 6px rgba(0,255,153,0.6)); }
+.maneuver-info { display: flex; flex-direction: column; text-align: left; }
+.maneuver-text { font-size: 0.85rem; font-weight: 800; color: #fff; }
+.maneuver-sub { font-size: 0.70rem; color: #00ff99; font-weight: 700; }
+
+/* Loot Drop Marker Pulse */
+@keyframes lootPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
 </style>
 </head>
 <body>
@@ -1202,6 +1294,24 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
       <div class="loc-dot"></div>
       <span id="map-city-label">Locating City...</span>
     </div>
+    
+    <!-- Track A: Dynamic POI Category Filter Strip -->
+    <div id="map-filter-strip">
+      <div class="poi-filter-chip active" data-cat="all" onclick="filterMapPOIs('all', this)">✨ All Nearby</div>
+      <div class="poi-filter-chip" data-cat="match" onclick="filterMapPOIs('match', this)">🎯 Matches</div>
+      <div class="poi-filter-chip" data-cat="loot" onclick="filterMapPOIs('loot', this)">🎁 Mystery Loot</div>
+      <div class="poi-filter-chip" data-cat="landmark" onclick="filterMapPOIs('landmark', this)">🏛️ Landmarks</div>
+      <div class="poi-filter-chip" data-cat="cafe" onclick="filterMapPOIs('cafe', this)">☕ Food & Cafe</div>
+      <div class="poi-filter-chip" data-cat="culture" onclick="filterMapPOIs('culture', this)">🎭 Culture</div>
+    </div>
+
+    <!-- Track C: Map Style Switcher (Carto Dark, Esri Satellite, Street View) -->
+    <div id="map-layer-switcher">
+      <button class="map-style-btn active" id="btn-style-dark" onclick="switchMapTileLayer('dark')">🌙 Dark</button>
+      <button class="map-style-btn" id="btn-style-sat" onclick="switchMapTileLayer('satellite')">🛰️ Satellite</button>
+      <button class="map-style-btn" id="btn-style-osm" onclick="switchMapTileLayer('osm')">🗺️ Street</button>
+    </div>
+
     <div id="map-actions">
       <button class="map-act" id="btn-open-quests" title="Daily Quests & Challenges" onclick="openQuestsModal()">📜</button>
       <button class="map-act" id="btn-open-achievements" title="Achievements & Badges" onclick="openAchievementsModal()">🏆</button>
@@ -1307,6 +1417,16 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
     </div>
 
     <!-- Scanning Overlay -->
+    
+    <!-- Track C: Real-Time Maneuver Turn-by-Turn Card -->
+    <div class="ar-maneuver-hud" id="ar-maneuver-hud" style="display:none;">
+      <div class="maneuver-icon" id="maneuver-icon">⬆️</div>
+      <div class="maneuver-info">
+        <div class="maneuver-text" id="maneuver-text">Proceed straight towards destination</div>
+        <div class="maneuver-sub" id="maneuver-sub">In 120m · Next waypoint</div>
+      </div>
+    </div>
+
     <div id="ar-scanning-overlay">
       <div class="vps-feature-cloud" id="vps-feature-cloud"></div>
       <div class="scan-ring"></div>
@@ -1325,6 +1445,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
         <div class="ar-mode-badge" id="ar-gmaps-badge-txt">Daylight 3D Map · 1st-Person Cartography</div>
       </div>
       <div class="ar-controls-right">
+        <button class="ar-cam-btn" id="btn-open-calib" onclick="openCalibrationModal()" title="Compass & VPS Calibration">🧭</button>
+        <button class="ar-cam-btn" id="btn-ar-chat" onclick="openChatModal()" title="Chat with Match">💬</button>
         <button class="ar-cam-btn" id="btn-camera-flip" onclick="flipCamera()" title="Flip camera" style="display:none;">🔄</button>
         <button class="ar-cam-btn" id="btn-camera-torch" onclick="toggleTorch()" title="Toggle torch" style="display:none;"><span id="camera-torch-icon">🔦</span></button>
         <button class="ar-cam-btn" onclick="openGoogleMapsKeyModal()" title="Google Maps API Key">🔑</button>
@@ -1392,7 +1514,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
     <div class="nb" id="nb-quests" onclick="openQuestsModal()"><span class="nb-icon">📜</span><span>Quests</span></div>
     <div class="nb" id="nb-achievements" onclick="openAchievementsModal()"><span class="nb-icon">🏆</span><span>Badges</span></div>
     <div class="nb" id="nb-universe" onclick="openUniversePanel()"><span class="nb-icon">🌐</span><span>Universe</span></div>
-    <div class="nb" id="nb-social" onclick="openSocialHub()"><span class="nb-icon">💬</span><span>Social</span></div>
+    <div class="nb" id="nb-chat" onclick="openChatModal()"><span class="nb-icon">💬</span><span>Chat</span></div>
+    <div class="nb" id="nb-social" onclick="openSocialHub()"><span class="nb-icon">👥</span><span>Community</span></div>
   </nav>
 
   <!-- ====================================================
@@ -1428,6 +1551,30 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jak
   <!-- ====================================================
        💬 CHAT MODAL
        ==================================================== -->
+  
+  <!-- Track B: Gyroscope & Compass Figure-8 Calibration Modal -->
+  <div id="calib-modal">
+    <div class="calib-card">
+      <div style="font-size:2rem;">🧭</div>
+      <h2 style="font-size:1.3rem; font-weight:900; color:#fff;">Calibrate Compass & VPS</h2>
+      <p style="font-size:0.85rem; color:#a0aec0; line-height:1.5;">
+        Rotate your phone in a <strong>figure-8 motion</strong> or pan horizontally across buildings to lock visual positioning alignment.
+      </p>
+      <div class="calib-fig8-anim">
+        <div class="fig8-path"></div>
+        <span style="position:absolute; font-size:1.6rem;">📱</span>
+      </div>
+      <div style="display:flex; gap:10px; width:100%;">
+        <button onclick="performFigure8Calibration()" style="flex:1; background:linear-gradient(135deg, #00ff99, #00e5ff); border:none; color:#030305; font-weight:800; padding:12px; border-radius:14px; cursor:pointer;">
+          ✨ Complete & Lock VPS
+        </button>
+        <button onclick="closeCalibrationModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; font-weight:700; padding:12px 18px; border-radius:14px; cursor:pointer;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="chat-modal">
     <div style="background:rgba(14,18,28,0.96); border:1.5px solid rgba(0,229,255,0.25); border-radius:24px; width:100%; max-width:420px; height:500px; display:flex; flex-direction:column; overflow:hidden;">
       <div style="padding:16px; background:rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
@@ -2364,37 +2511,232 @@ function syncMapToState() {
     showFloatingXPNotification('GPS Centered', currentCityName);
   }
 
+  
+  // ============================================================
+  // TRACK A: MYSTERY LOOT DROPS & POI FILTERING
+  // ============================================================
+  let activePoiFilter = 'all';
+  let mysteryLootDrops = [
+    { id: 'loot_1', name: 'Cyber Crystal Cache', category: 'loot', lat: 37.8052, lon: -122.2700, icon: '💎', xp: 50, color: '#e040fb' },
+    { id: 'loot_2', name: 'Golden Ambition Capsule', category: 'loot', lat: 37.8062, lon: -122.2725, icon: '🎁', xp: 75, color: '#ffd700' },
+    { id: 'loot_3', name: 'Pathfinder Supply Drop', category: 'loot', lat: 37.8035, lon: -122.2690, icon: '⚡', xp: 60, color: '#00ff99' }
+  ];
+  let claimedLootIds = new Set(JSON.parse(localStorage.getItem('tw_claimed_loot') || '[]'));
+
+  function filterMapPOIs(category, element) {
+    activePoiFilter = category;
+    document.querySelectorAll('.poi-filter-chip').forEach(c => c.classList.remove('active'));
+    if (element) element.classList.add('active');
+    AudioManager.playTone(520, 0.06, 'sine', 0.08);
+    updateMapPOIs();
+  }
+
+  function claimMysteryLoot(lootId) {
+    const loot = mysteryLootDrops.find(l => l.id === lootId);
+    if (!loot || claimedLootIds.has(lootId)) return;
+    claimedLootIds.add(lootId);
+    try {
+      localStorage.setItem('tw_claimed_loot', JSON.stringify(Array.from(claimedLootIds)));
+    } catch(e) {}
+
+    AudioManager.playArrival();
+    if (navigator.vibrate) navigator.vibrate([80, 50, 150]);
+    addXP(loot.xp || 50, `Loot: ${loot.name}`);
+    showCelebrationConfetti();
+    updateMapPOIs();
+  }
+
+  // ============================================================
+  // TRACK B: COMPASS & GYRO FIGURE-8 CALIBRATION & VPS DOTS
+  // ============================================================
+  let isVpsCalibrated = false;
+  let vpsFeaturePoints = [];
+
+  function initVpsFeaturePoints() {
+    vpsFeaturePoints = [];
+    const count = 35;
+    for (let i = 0; i < count; i++) {
+      vpsFeaturePoints.push({
+        x: Math.random(),
+        y: Math.random() * 0.7 + 0.1,
+        size: Math.random() * 3.5 + 2.5,
+        alpha: Math.random() * 0.7 + 0.3,
+        pulseSpeed: Math.random() * 0.05 + 0.02
+      });
+    }
+  }
+  initVpsFeaturePoints();
+
+  function openCalibrationModal() {
+    AudioManager.playTone(400, 0.08, 'sine', 0.1);
+    const m = document.getElementById('calib-modal');
+    if (m) m.classList.add('active');
+  }
+
+  function closeCalibrationModal() {
+    const m = document.getElementById('calib-modal');
+    if (m) m.classList.remove('active');
+  }
+
+  function performFigure8Calibration() {
+    isVpsCalibrated = true;
+    currentHeading = (currentHeading + 180) % 360; // Normalize
+    AudioManager.playAchievement();
+    if (navigator.vibrate) navigator.vibrate([100, 80, 100]);
+    addXP(25, 'Compass VPS Calibration');
+    closeCalibrationModal();
+  }
+
+  // Draw VPS feature dots onto AR overlay canvas
+  function drawVpsFeatureDots(ctx, W, H, t) {
+    if (viewMode !== 'camera' && viewMode !== 'live') return;
+    ctx.save();
+    vpsFeaturePoints.forEach(pt => {
+      const px = pt.x * W;
+      const py = pt.y * H;
+      const pulse = Math.sin(t * pt.pulseSpeed) * 0.3 + 0.7;
+      ctx.beginPath();
+      ctx.arc(px, py, pt.size * pulse, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0, 229, 255, ${pt.alpha * pulse * 0.8})`;
+      ctx.shadowColor = '#00e5ff';
+      ctx.shadowBlur = 8;
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  // ============================================================
+  // TRACK C: MAP TILE LAYERS & OSRM TURN-BY-TURN ROUTING
+  // ============================================================
+  let currentTileLayerName = 'dark';
+  const tileLayerSources = {
+    dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    osm: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+  };
+  let activeMapTileLayer = null;
+
+  function switchMapTileLayer(styleName) {
+    if (!map || !tileLayerSources[styleName]) return;
+    currentTileLayerName = styleName;
+    document.querySelectorAll('.map-style-btn').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.getElementById('btn-style-' + styleName);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    if (activeMapTileLayer) {
+      map.removeLayer(activeMapTileLayer);
+    }
+    activeMapTileLayer = L.tileLayer(tileLayerSources[styleName], { maxZoom: 20 }).addTo(map);
+    AudioManager.playTone(600, 0.08, 'sine', 0.1);
+  }
+
+  // Real OSRM Pedestrian Route Fetcher
+  let osrmRouteCoordinates = [];
+  let currentManeuver = { text: 'Head northeast on Broadway', distance: 120, icon: '⬆️' };
+
+  async function fetchOsrmPedestrianRoute(startLat, startLon, endLat, endLon) {
+    try {
+      const url = `https://router.project-osrm.org/route/v1/foot/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson&steps=true`;
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.routes && data.routes[0]) {
+        const route = data.routes[0];
+        osrmRouteCoordinates = route.geometry.coordinates.map(c => [c[1], c[0]]);
+        if (routeLine && map) {
+          routeLine.setLatLngs(osrmRouteCoordinates);
+        }
+        if (route.legs && route.legs[0] && route.legs[0].steps && route.legs[0].steps[0]) {
+          const step = route.legs[0].steps[0];
+          const modifier = step.maneuver ? step.maneuver.modifier : '';
+          let icon = '⬆️';
+          if (modifier.includes('right')) icon = '↗️';
+          if (modifier.includes('left')) icon = '↖️';
+          currentManeuver = {
+            text: step.name ? `Continue along ${step.name}` : 'Head towards destination',
+            distance: Math.round(step.distance || 100),
+            icon
+          };
+          updateManeuverHUD();
+        }
+      }
+    } catch(e) {
+      // Fallback straight line
+      if (routeLine && map) {
+        routeLine.setLatLngs([[startLat, startLon], [endLat, endLon]]);
+      }
+    }
+  }
+
+  function updateManeuverHUD() {
+    const hud = document.getElementById('ar-maneuver-hud');
+    const txt = document.getElementById('maneuver-text');
+    const sub = document.getElementById('maneuver-sub');
+    const ico = document.getElementById('maneuver-icon');
+    if (!hud || !txt || !sub || !ico) return;
+    if (isArActive) {
+      hud.style.display = 'flex';
+      txt.textContent = currentManeuver.text;
+      sub.textContent = `In ${currentManeuver.distance}m · Next turn`;
+      ico.textContent = currentManeuver.icon;
+    } else {
+      hud.style.display = 'none';
+    }
+  }
+
+  
   function updateMapPOIs() {
     if (!map) return;
     mapPoiMarkers.forEach(m => map.removeLayer(m));
     mapPoiMarkers = [];
-    arPOIs.forEach(p => {
+
+    // Combine POIs with Mystery Loot drops
+    let allPoints = [...arPOIs];
+    if (activePoiFilter === 'all' || activePoiFilter === 'loot') {
+      mysteryLootDrops.forEach(l => {
+        allPoints.push({
+          ...l,
+          isLoot: true,
+          isClaimed: claimedLootIds.has(l.id)
+        });
+      });
+    }
+
+    allPoints.forEach(p => {
       if (!p.lat || !p.lon) return;
-      const marker = L.circleMarker([p.lat, p.lon], {
-        radius: 7, color: p.color || '#00e5ff', fillColor: p.color || '#00e5ff', fillOpacity: 0.75, weight: 2
-      }).addTo(map).bindPopup(`<strong>${p.icon || '📍'} ${p.name}</strong><br>${p.category || 'POI'}`);
-      const distToPOI = Math.round(haversineDistance(playerLat, playerLon, p.lat, p.lon));
-      const isCheckedIn = (window.checkedInPOIs && window.checkedInPOIs.has(p.id || p.name));
-      const checkinRadius = (window.gameDifficulty === 'casual' ? 250 : (window.gameDifficulty === 'hardcore' ? 75 : 150));
-      const canCheckIn = distToPOI <= checkinRadius;
-      
-      let checkinBtnHtml = '';
-      if (isCheckedIn) {
-        checkinBtnHtml = '<div style="margin-top:6px; font-size:0.75rem; font-weight:800; color:#00ff99;">⭐ Checked In (+25 XP)</div>';
-      } else if (canCheckIn) {
-        checkinBtnHtml = `<button class="poi-checkin-btn" onclick="checkInPOI('${p.id || p.name}', '${escapeHtml(p.name)}')">📍 Check In (+25 XP)</button>`;
-      } else {
-        checkinBtnHtml = `<div style="margin-top:6px; font-size:0.72rem; color:#78909c;">🚶 ${distToPOI}m away (Walk closer to check in)</div>`;
+
+      // Filter check
+      if (activePoiFilter !== 'all') {
+        const cat = (p.category || '').toLowerCase();
+        if (activePoiFilter === 'loot' && !p.isLoot) return;
+        if (activePoiFilter === 'cafe' && !cat.includes('cafe') && !cat.includes('food')) return;
+        if (activePoiFilter === 'culture' && !cat.includes('culture') && !cat.includes('theatre') && !cat.includes('museum')) return;
+        if (activePoiFilter === 'landmark' && !cat.includes('landmark') && !cat.includes('park') && !cat.includes('scenic')) return;
+        if (activePoiFilter === 'match' && p.isLoot) return;
       }
 
-      marker.bindPopup(`
-        <div class="poi-checkin-popup">
-          <div style="font-weight:900; font-size:0.95rem; color:#0f172a;">${p.icon || '📍'} ${p.name}</div>
-          <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">${p.category || 'Point of Interest'}</div>
-          ${checkinBtnHtml}
-        </div>
-      `);
+      if (p.isLoot) {
+        const isClaimed = p.isClaimed;
+        const marker = L.circleMarker([p.lat, p.lon], {
+          radius: isClaimed ? 6 : 10,
+          color: isClaimed ? '#78909c' : p.color,
+          fillColor: isClaimed ? '#37474f' : p.color,
+          fillOpacity: isClaimed ? 0.5 : 0.9,
+          weight: 2
+        }).addTo(map);
+        
+        const lootHtml = isClaimed ?
+          `<strong>${p.icon} ${p.name}</strong><br><span style="color:#00ff99;">✓ Collected</span>` :
+          `<strong>${p.icon} ${p.name}</strong><br><span style="color:#ffd700;">+${p.xp} Discovery XP</span><br><button onclick="claimMysteryLoot('${p.id}')" style="margin-top:6px;background:linear-gradient(135deg,#00ff99,#00e5ff);border:none;color:#000;font-weight:800;padding:6px 12px;border-radius:10px;cursor:pointer;">Claim Loot</button>`;
+        marker.bindPopup(lootHtml);
+        mapPoiMarkers.push(marker);
+        return;
+      }
 
+      const marker = L.circleMarker([p.lat, p.lon], {
+        radius: 7, color: p.color || '#00e5ff', fillColor: p.color || '#00e5ff', fillOpacity: 0.75, weight: 2
+      }).addTo(map);
+      marker.bindPopup(`<strong>${p.icon || '📍'} ${p.name}</strong><br>${p.category || 'POI'}`);
       marker.on('click', () => setTargetPOI(p));
       mapPoiMarkers.push(marker);
     });
@@ -2838,6 +3180,8 @@ function syncMapToState() {
     } else {
       if (bgCanvas) bgCanvas.style.display = 'none';
     }
+
+    drawVpsFeatureDots(ctx, W, H, t);
 
     // 2. Overlay Canvas (Live View Chevrons, Destination Pin, POIs, Street Signs)
     const canvas = document.getElementById('ar-overlay-canvas');
@@ -5423,6 +5767,7 @@ function syncMapToState() {
   // AR TOGGLE & MAIN ANIMATION LOOP
   // ============================================================
   async function toggleLiveARMode() {
+    setTimeout(updateManeuverHUD, 50);
     isArActive = !isArActive;
     const panel = document.getElementById('gmaps-live-ar');
     const bottomSheet = document.getElementById('ar-sheet');
